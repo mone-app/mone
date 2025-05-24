@@ -17,3 +17,13 @@ final userProvider = StateNotifierProvider<UserController, UserEntity?>((ref) {
   final userRepository = ref.watch(userRepositoryProvider);
   return UserController(userRepository, authRepository);
 });
+
+final allUsersStreamProvider = StreamProvider<List<UserEntity>>((ref) {
+  final repo = ref.watch(userRepositoryProvider);
+  return repo.watchAllUsers();
+});
+
+final allUsernamesStreamProvider = StreamProvider<List<String>>((ref) {
+  final repo = ref.watch(userRepositoryProvider);
+  return repo.watchAllUsernames();
+});

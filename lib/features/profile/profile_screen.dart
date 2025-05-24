@@ -27,10 +27,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> _handleUserFetch() async {
-    final user = ref.read(userProvider);
-    if (user == null) {
-      ref.read(userProvider.notifier).fetchUser();
-    }
+    ref.read(userProvider.notifier).fetchUser();
   }
 
   @override

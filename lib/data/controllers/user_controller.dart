@@ -45,7 +45,7 @@ class UserController extends StateNotifier<UserEntity?> {
       final newUser = UserEntity(
         id: userCredential.user!.uid,
         name: name,
-        username: username,
+        username: username.toLowerCase(),
         email: email,
         profilePicture: profilePicture,
         balance: 0.0,

@@ -6,10 +6,14 @@ class LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ScreenHeader(
+    return ScreenHeader(
       title: 'Mone',
       subtitle: 'Share, settle, and stay connected.',
-      icon: Icon(Icons.attach_money_rounded, size: 64),
+      icon: Icon(
+        Icons.account_balance_wallet_rounded,
+        size: 64,
+        color: Theme.of(context).colorScheme.primary,
+      ),
     );
   }
 }

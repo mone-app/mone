@@ -18,18 +18,20 @@ class RegisterScreen extends ConsumerStatefulWidget {
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _displayNameController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
   File? _profileImage;
   bool _acceptedTerms = false;
-
   bool _isLoading = false;
+  String? _usernameError;
 
   @override
   void dispose() {
     _displayNameController.dispose();
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -42,11 +44,51 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     });
   }
 
+  String? _validateUsername(String? value) {
+    final allUsernamesAsync = ref.read(allUsernamesStreamProvider);
+    return allUsernamesAsync.when(
+      data:
+          (usernames) =>
+              AuthValidator.validateUsernameWithUniqueness(value, usernames),
+      loading: () => AuthValidator.validateUsername(value),
+      error: (_, __) => AuthValidator.validateUsername(value),
+    );
+  }
+
+  void _checkUsernameAvailability(String value) {
+    final allUsernamesAsync = ref.read(allUsernamesStreamProvider);
+
+    allUsernamesAsync.when(
+      data: (usernames) {
+        setState(() {
+          _usernameError = AuthValidator.validateUsernameRealTime(
+            value,
+            usernames,
+          );
+        });
+      },
+      loading: () {
+        setState(() {
+          _usernameError = AuthValidator.validateUsernameRealTime(value, null);
+        });
+      },
+      error: (_, __) {
+        setState(() {
+          _usernameError = AuthValidator.validateUsernameRealTime(value, null);
+        });
+      },
+    );
+  }
+
   Future<void> _register() async {
+    // Clear real-time error before form validation
+    setState(() {
+      _usernameError = null;
+    });
+
     if (_formKey.currentState!.validate() && _acceptedTerms) {
       _formKey.currentState!.save();
 
-      // Set loading to true
       setState(() {
         _isLoading = true;
       });
@@ -58,11 +100,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               _emailController.text.trim(),
               _passwordController.text,
               _displayNameController.text.trim(),
-              _profileImage.toString(),
+              _usernameController.text.trim(),
+              _profileImage?.path,
             );
       } catch (e) {
-        // ignore: avoid_print
-        print(e);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Registration failed: ${e.toString()}'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       } finally {
         if (mounted) {
           setState(() {
@@ -80,7 +130,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -140,6 +189,38 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
           const SizedBox(height: 16),
 
+          // Username Field
+          Consumer(
+            builder: (context, ref, child) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomInputField(
+                    controller: _usernameController,
+                    labelText: 'Username',
+                    hintText: 'Choose a unique username',
+                    prefixIcon: Icons.alternate_email,
+                    validator: _validateUsername,
+                    onChanged: _checkUsernameAvailability,
+                  ),
+                  if (_usernameError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12, top: 6),
+                      child: Text(
+                        _usernameError!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
+
           // Email Field
           CustomInputField(
             controller: _emailController,
@@ -176,12 +257,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
           const SizedBox(height: 24),
 
-          // Terms of Service Checkbox
           _buildTermsCheckbox(),
 
           const SizedBox(height: 32),
 
-          // Register Button
           CustomButton(
             text: 'Create Account',
             onPressed: _register,
@@ -190,13 +269,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
           const SizedBox(height: 24),
 
-          // Already have an account link
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 'Already have an account? ',
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
@@ -236,7 +316,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             child: Text.rich(
               TextSpan(
                 text: 'I agree to the ',
-                style: const TextStyle(color: Colors.grey),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
                 children: [
                   TextSpan(
                     text: 'Terms of Service',
@@ -245,9 +327,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const TextSpan(
+                  TextSpan(
                     text: ' and ',
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
                   ),
                   TextSpan(
                     text: 'Privacy Policy',
