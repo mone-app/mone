@@ -6,10 +6,9 @@ class LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ScreenHeader(
+    return ScreenHeader(
       title: 'Mone',
       subtitle: 'Share, settle, and stay connected.',
-      icon: Icon(Icons.attach_money_rounded, size: 64),
     );
   }
 }
@@ -23,7 +22,6 @@ class PasswordResetHeader extends StatelessWidget {
       title: 'Forgot your password?',
       subtitle:
           'Enter your email address and we\'ll send you instructions to reset your password.',
-      icon: Icon(Icons.lock_reset, size: 64),
     );
   }
 }
