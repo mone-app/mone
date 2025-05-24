@@ -1,6 +1,7 @@
 // libs/widgets/navigation_wrapper.dart
 import 'package:flutter/material.dart';
 import 'package:mone/features/home/home_screen.dart';
+import 'package:mone/features/profile/profile_screen.dart';
 
 class NavigationWrapper extends StatefulWidget {
   final int selectedPageIndex;
@@ -23,7 +24,7 @@ class NavigationWrapperState extends State<NavigationWrapper> {
   final List<Widget> _screens = const [
     HomeScreen(),
     HomeScreen(),
-    HomeScreen(),
+    ProfileScreen(),
   ];
 
   @override

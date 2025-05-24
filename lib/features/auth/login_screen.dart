@@ -125,17 +125,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 64),
 
                     // Register Link
-                    GestureDetector(
-                      onTap:
-                          () =>
-                              NavigationService.navigateTo(RouteEnum.register),
-                      child: Text(
-                        'Register',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Don't have an account? ",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
                         ),
-                      ),
+                        GestureDetector(
+                          onTap:
+                              () => NavigationService.navigateTo(
+                                RouteEnum.register,
+                              ),
+                          child: Text(
+                            'Register',
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
