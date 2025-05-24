@@ -16,6 +16,7 @@ class UserController extends StateNotifier<UserEntity?> {
         _authRepository.auth.currentUser!.uid,
       );
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching user: $e');
     }
   }
@@ -25,6 +26,7 @@ class UserController extends StateNotifier<UserEntity?> {
       await _userRepository.saveUser(user);
       state = user;
     } catch (e) {
+      // ignore: avoid_print
       print('Error saving user: $e');
     }
   }
@@ -33,6 +35,7 @@ class UserController extends StateNotifier<UserEntity?> {
     try {
       state = null;
     } catch (e) {
+      // ignore: avoid_print
       print('Error clearing user: $e');
     }
   }
