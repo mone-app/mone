@@ -1,12 +1,9 @@
 // lib/features/transaction/transaction_form_screen.dart (Using models)
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mone/data/entities/transaction_entity.dart';
+
 import 'package:mone/data/enums/transaction_type_enum.dart';
 import 'package:mone/data/models/category_model.dart';
 import 'package:mone/data/models/method_model.dart';
-import 'package:mone/data/providers/transaction_provider.dart';
-import 'package:mone/data/providers/user_provider.dart';
 
 class TransactionFormScreen extends StatefulWidget {
   const TransactionFormScreen({super.key});
@@ -133,10 +130,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 decoration: InputDecoration(
                   labelText: 'Category',
                   border: const OutlineInputBorder(),
-                  prefixIcon:
-                      _selectedCategory != null
-                          ? Icon(_selectedCategory!.icon)
-                          : const Icon(Icons.category),
                 ),
                 items:
                     availableCategories.map((category) {
@@ -172,10 +165,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 decoration: InputDecoration(
                   labelText: 'Payment Method',
                   border: const OutlineInputBorder(),
-                  prefixIcon:
-                      _selectedMethod != null
-                          ? Icon(_selectedMethod!.icon)
-                          : const Icon(Icons.payment),
                 ),
                 items:
                     availableMethods.map((method) {
