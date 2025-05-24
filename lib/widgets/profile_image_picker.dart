@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:mone/widgets/profile_avatar.dart';
 
 class ProfileImagePicker extends StatelessWidget {
   final File? profileImage;
+  final String? avatarPath;
   final String? displayName;
   final Function() onTap;
   final double radius;
 
   const ProfileImagePicker({
     super.key,
-    required this.profileImage,
+    this.profileImage,
+    this.avatarPath,
     required this.onTap,
     this.displayName,
     this.radius = 50,
@@ -22,24 +25,13 @@ class ProfileImagePicker extends StatelessWidget {
       onTap: onTap,
       child: Stack(
         children: [
-          CircleAvatar(
-            radius: radius,
-            backgroundImage:
-                profileImage != null
-                    ? FileImage(profileImage!) as ImageProvider
-                    : null,
-            child:
-                profileImage == null
-                    ? Text(
-                      displayName != null && displayName!.isNotEmpty
-                          ? displayName![0].toUpperCase()
-                          : '?',
-                      style: const TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                    : null,
+          ProfileAvatar(
+            profileImage: profileImage,
+            avatarPath: avatarPath,
+            displayName: displayName,
+            size: radius * 2, // ProfileAvatar uses diameter, not radius
+            showBorder: false, // We'll handle our own styling
+            showShadow: false,
           ),
           Positioned(
             bottom: 0,
@@ -47,7 +39,8 @@ class ProfileImagePicker extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(width: 2),
+                color: Theme.of(context).colorScheme.primary,
+                border: Border.all(color: Colors.white, width: 2),
               ),
               padding: const EdgeInsets.all(8),
               child: const Icon(
@@ -65,12 +58,14 @@ class ProfileImagePicker extends StatelessWidget {
 
 class ProfileImagePickerSection extends StatelessWidget {
   final File? profileImage;
+  final String? avatarPath;
   final String? displayName;
   final Function(File?) onImageSelected;
 
   const ProfileImagePickerSection({
     super.key,
-    required this.profileImage,
+    this.profileImage,
+    this.avatarPath,
     required this.onImageSelected,
     this.displayName,
   });
@@ -89,6 +84,7 @@ class ProfileImagePickerSection extends StatelessWidget {
     return Center(
       child: ProfileImagePicker(
         profileImage: profileImage,
+        avatarPath: avatarPath,
         displayName: displayName,
         onTap: _pickImage,
       ),

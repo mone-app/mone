@@ -83,4 +83,21 @@ class UserEntity {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
+
+  // Utility functions
+
+  /// Get the number of friends
+  int get friendCount => friend.length;
+
+  /// Check if user has friends
+  bool get hasFriends => friend.isNotEmpty;
+
+  /// Check if a specific user is a friend
+  bool isFriend(String userId) => friend.contains(userId);
+
+  /// Get the number of bills
+  int get billCount => bill.length;
+
+  /// Check if user has bills
+  bool get hasBills => bill.isNotEmpty;
 }

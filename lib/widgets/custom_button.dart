@@ -5,6 +5,8 @@ class CustomButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isLoading;
   final IconData? icon;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   const CustomButton({
     super.key,
@@ -12,6 +14,8 @@ class CustomButton extends StatelessWidget {
     required this.onPressed,
     this.isLoading = false,
     this.icon,
+    this.backgroundColor,
+    this.foregroundColor,
   });
 
   @override
@@ -22,6 +26,9 @@ class CustomButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
         elevation: 0,
+        backgroundColor: backgroundColor ?? Theme.of(context).primaryColor,
+        foregroundColor:
+            foregroundColor ?? Theme.of(context).colorScheme.onPrimary,
       ),
       child:
           isLoading

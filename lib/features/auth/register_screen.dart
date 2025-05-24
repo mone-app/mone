@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mone/data/providers/user_provider.dart';
 import 'package:mone/features/auth/utils/auth_validator.dart';
 import 'package:mone/features/auth/widgets/password_input_field.dart';
-import 'package:mone/features/auth/widgets/profile_image_picker.dart';
+import 'package:mone/widgets/profile_image_picker.dart';
 import 'package:mone/widgets/custom_button.dart';
 import 'package:mone/widgets/custom_input_field.dart';
 import 'dart:io';
