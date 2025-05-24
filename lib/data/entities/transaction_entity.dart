@@ -1,13 +1,12 @@
 // lib/data/entities/transaction_entity.dart
 
+import 'package:mone/data/enums/transaction_type_enum.dart';
 import 'package:mone/data/models/category_model.dart';
 import 'package:mone/data/models/method_model.dart';
 
-enum TransactionType { income, expense }
-
 class TransactionEntity {
   final String id;
-  final TransactionType type;
+  final TransactionTypeEnum type;
   final DateTime date;
   final double amount;
   final MethodModel method;
@@ -41,7 +40,10 @@ class TransactionEntity {
   factory TransactionEntity.fromMap(Map<String, dynamic> map) {
     return TransactionEntity(
       id: map['id'] ?? '',
-      type: map['type'] == 'income' ? TransactionType.income : TransactionType.expense,
+      type:
+          map['type'] == 'income'
+              ? TransactionTypeEnum.income
+              : TransactionTypeEnum.expense,
       date: DateTime.fromMillisecondsSinceEpoch(map['date'] ?? 0),
       amount: (map['amount'] ?? 0.0).toDouble(),
       method: MethodModel.parseMethodFromId(map['method'] ?? ''),
@@ -53,7 +55,7 @@ class TransactionEntity {
   // Create a copy with modified fields
   TransactionEntity copyWith({
     String? id,
-    TransactionType? type,
+    TransactionTypeEnum? type,
     DateTime? date,
     double? amount,
     MethodModel? method,

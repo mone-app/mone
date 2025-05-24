@@ -1,10 +1,9 @@
 // lib/data/entities/bill_entity.dart
 
 import 'package:flutter/foundation.dart';
+import 'package:mone/data/enums/bill_status_enum.dart';
 import 'package:mone/data/models/category_model.dart';
 import 'package:mone/data/models/participant_model.dart';
-
-enum BillStatus { settled, active }
 
 class BillEntity {
   final String id;
@@ -16,7 +15,7 @@ class BillEntity {
   final List<ParticipantModel> participants;
   final CategoryModel category;
   final String payerId;
-  final BillStatus status;
+  final BillStatusEnum status;
   final String? billReceiptImageUrl;
 
   BillEntity({
@@ -66,9 +65,9 @@ class BillEntity {
           [],
       category: CategoryModel.parseCategoryFromId(map['category'] ?? ''),
       payerId: map['payerId'] ?? '',
-      status: BillStatus.values.firstWhere(
+      status: BillStatusEnum.values.firstWhere(
         (e) => e.name == map['status'],
-        orElse: () => BillStatus.active,
+        orElse: () => BillStatusEnum.active,
       ),
       billReceiptImageUrl: map['billReceiptImageUrl'],
     );
@@ -85,7 +84,7 @@ class BillEntity {
     List<ParticipantModel>? participants,
     CategoryModel? category,
     String? payerId,
-    BillStatus? status,
+    BillStatusEnum? status,
     String? billReceiptImageUrl,
   }) {
     return BillEntity(
@@ -145,10 +144,10 @@ class BillEntity {
   // Helper methods for bill management
 
   /// Check if the bill is settled
-  bool get isSettled => status == BillStatus.settled;
+  bool get isSettled => status == BillStatusEnum.settled;
 
   /// Check if the bill is active
-  bool get isActive => status == BillStatus.active;
+  bool get isActive => status == BillStatusEnum.active;
 
   /// Check if a user is a participant in this bill
   bool isParticipant(String userId) {
