@@ -10,33 +10,56 @@ class UserController extends StateNotifier<UserEntity?> {
 
   UserController(this._userRepository, this._authRepository) : super(null);
 
-  Future<void> getUser() async {
-    try {
-      state = await _userRepository.getUser(
-        _authRepository.auth.currentUser!.uid,
-      );
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error fetching user: $e');
-    }
+  Future<void> fetchUser() async {
+    state = await _userRepository.fetchUser(
+      _authRepository.auth.currentUser!.uid,
+    );
   }
 
   Future<void> upsertUser(UserEntity user) async {
-    try {
-      await _userRepository.saveUser(user);
-      state = user;
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error saving user: $e');
-    }
+    await _userRepository.upsertUser(user);
+    state = user;
   }
 
   Future<void> clearUser() async {
-    try {
-      state = null;
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error clearing user: $e');
+    state = null;
+  }
+
+  Future<void> login(String email, String password) async {
+    final user = await _authRepository.login(email, password);
+    if (user != null) {
+      await fetchUser();
     }
+  }
+
+  Future<void> register(
+    String email,
+    String password,
+    String name,
+    String username, [
+    String? profilePicture,
+  ]) async {
+    final userCredential = await _authRepository.register(email, password);
+
+    if (userCredential.user != null) {
+      final newUser = UserEntity(
+        id: userCredential.user!.uid,
+        name: name,
+        username: username,
+        email: email,
+        profilePicture: profilePicture,
+        balance: 0.0,
+        bill: [],
+        friend: [],
+        createdAt: DateTime.now(),
+      );
+
+      await upsertUser(newUser);
+    }
+  }
+
+  Future<void> logout() async {
+    _authRepository.logout();
+    await clearUser();
   }
 }

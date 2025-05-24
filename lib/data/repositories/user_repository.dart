@@ -6,7 +6,7 @@ class UserRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String collectionPath = "users";
 
-  Future<UserEntity?> getUser(String userId) async {
+  Future<UserEntity?> fetchUser(String userId) async {
     DocumentSnapshot doc =
         await _firestore.collection(collectionPath).doc(userId).get();
     if (doc.exists) {
@@ -15,7 +15,7 @@ class UserRepository {
     return null;
   }
 
-  Future<void> saveUser(UserEntity user) async {
+  Future<void> upsertUser(UserEntity user) async {
     await _firestore
         .collection(collectionPath)
         .doc(user.id)
