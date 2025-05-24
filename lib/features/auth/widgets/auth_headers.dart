@@ -9,11 +9,6 @@ class LoginHeader extends StatelessWidget {
     return ScreenHeader(
       title: 'Mone',
       subtitle: 'Share, settle, and stay connected.',
-      icon: Icon(
-        Icons.account_balance_wallet_rounded,
-        size: 64,
-        color: Theme.of(context).colorScheme.primary,
-      ),
     );
   }
 }
@@ -27,7 +22,6 @@ class PasswordResetHeader extends StatelessWidget {
       title: 'Forgot your password?',
       subtitle:
           'Enter your email address and we\'ll send you instructions to reset your password.',
-      icon: Icon(Icons.lock_reset, size: 64),
     );
   }
 }

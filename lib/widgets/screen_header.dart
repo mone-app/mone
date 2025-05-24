@@ -19,6 +19,14 @@ class ScreenHeader extends StatelessWidget {
     return Column(
       children: [
         if (icon != null) ...[icon!, SizedBox(height: spacing)],
+        Image.asset(
+          'assets/logo/logo-source.png',
+          width: 64,
+          height: 64,
+          fit: BoxFit.cover,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        SizedBox(height: spacing),
         Text(
           title,
           style: Theme.of(
