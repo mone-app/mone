@@ -1,6 +1,7 @@
 // libs/widgets/navigation_wrapper.dart
 import 'package:flutter/material.dart';
 import 'package:mone/features/home/home_screen.dart';
+import 'package:mone/features/transactions/transaction_screen.dart';
 
 class NavigationWrapper extends StatefulWidget {
   final int selectedPageIndex;
@@ -20,11 +21,7 @@ class NavigationWrapperState extends State<NavigationWrapper> {
     _selectedPageIndex = widget.selectedPageIndex;
   }
 
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    HomeScreen(),
-    HomeScreen(),
-  ];
+  final List<Widget> _screens = const [TransactionScreen(), HomeScreen(), HomeScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +36,9 @@ class NavigationWrapperState extends State<NavigationWrapper> {
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.monetization_on_outlined),
+            activeIcon: Icon(Icons.monetization_on),
+            label: 'Transactions',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt_long_outlined),
