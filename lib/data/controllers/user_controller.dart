@@ -11,9 +11,7 @@ class UserController extends StateNotifier<UserEntity?> {
   UserController(this._userRepository, this._authRepository) : super(null);
 
   Future<void> fetchUser() async {
-    state = await _userRepository.fetchUser(
-      _authRepository.auth.currentUser!.uid,
-    );
+    state = await _userRepository.fetchUser(_authRepository.auth.currentUser!.uid);
   }
 
   Future<void> upsertUser(UserEntity user) async {
@@ -56,6 +54,10 @@ class UserController extends StateNotifier<UserEntity?> {
 
       await upsertUser(newUser);
     }
+  }
+
+  void updateUserLocally(UserEntity updatedUser) {
+    state = updatedUser;
   }
 
   Future<void> logout() async {

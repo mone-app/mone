@@ -1,6 +1,7 @@
 // lib/data/controllers/transaction_controller.dart (Simplified - no setUser needed)
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mone/data/entities/transaction_entity.dart';
+import 'package:mone/data/providers/user_provider.dart';
 import 'package:mone/data/repositories/transaction_repository.dart';
 import 'package:mone/data/repositories/user_repository.dart';
 import 'package:mone/data/enums/transaction_type_enum.dart';
@@ -8,8 +9,10 @@ import 'package:mone/data/enums/transaction_type_enum.dart';
 class TransactionController extends StateNotifier<List<TransactionEntity>> {
   final TransactionRepository _transactionRepository;
   final UserRepository _userRepository;
+  final Ref _ref;
 
-  TransactionController(this._transactionRepository, this._userRepository) : super([]);
+  TransactionController(this._transactionRepository, this._userRepository, this._ref)
+    : super([]);
 
   // Create a new transaction and update user balance
   Future<void> createTransaction(String userId, TransactionEntity transaction) async {
@@ -111,14 +114,12 @@ class TransactionController extends StateNotifier<List<TransactionEntity>> {
       );
 
       await _userRepository.upsertUser(updatedUser);
+
+      // Update local state in user provider
+      _ref.read(userProvider.notifier).updateUserLocally(updatedUser);
     } catch (e) {
       print('Error updating user balance: $e');
       rethrow;
     }
-  }
-
-  // Clear transactions (for logout)
-  void clearTransactions() {
-    state = [];
   }
 }

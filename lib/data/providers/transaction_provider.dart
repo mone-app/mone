@@ -13,7 +13,7 @@ final transactionProvider =
     StateNotifierProvider<TransactionController, List<TransactionEntity>>((ref) {
       final transactionRepository = ref.watch(transactionRepositoryProvider);
       final userRepository = ref.watch(userRepositoryProvider);
-      return TransactionController(transactionRepository, userRepository);
+      return TransactionController(transactionRepository, userRepository, ref);
     });
 
 // Stream provider for real-time transaction updates
