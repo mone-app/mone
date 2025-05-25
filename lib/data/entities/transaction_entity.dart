@@ -103,4 +103,13 @@ class TransactionEntity {
         category.hashCode ^
         description.hashCode;
   }
+
+  /// Check if this is an income transaction
+  bool get isIncome => type == TransactionTypeEnum.income;
+
+  /// Check if this is an expense transaction
+  bool get isExpense => type == TransactionTypeEnum.expense;
+
+  /// Get the formatted amount with proper sign
+  double get signedAmount => isIncome ? amount : -amount;
 }

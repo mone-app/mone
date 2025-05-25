@@ -1,5 +1,8 @@
 // lib/data/entities/user_entity.dart
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mone/data/entities/transaction_entity.dart';
+
 class UserEntity {
   final String id;
   final String name;
@@ -36,11 +39,8 @@ class UserEntity {
       bill: List<String>.from(map['bill'] ?? []),
       friend: List<String>.from(map['friend'] ?? []),
       createdAt:
-          map['createdAt'] != null
-              ? DateTime.parse(map['createdAt'])
-              : DateTime.now(),
-      updatedAt:
-          map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : null,
+          map['createdAt'] != null ? DateTime.parse(map['createdAt']) : DateTime.now(),
+      updatedAt: map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : null,
     );
   }
 
