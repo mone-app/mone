@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mone/data/entities/user_entity.dart';
+import 'package:mone/data/providers/api_provider.dart';
 import 'package:mone/data/providers/user_provider.dart';
 import 'package:mone/features/profile/widgets/search_bar.dart';
 import 'package:mone/features/profile/widgets/search_result.dart';
@@ -53,6 +54,11 @@ class _SearchFriendScreenState extends ConsumerState<SearchFriendScreen> {
       );
 
       await ref.read(userProvider.notifier).upsertUser(updatedUser);
+      final notification = ref.watch(notificationApiProvider);
+      await notification.sendAddFriendNotification(
+        targetUserId: userToAdd.id,
+        fromUserId: currentUserData.id,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

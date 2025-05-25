@@ -1,5 +1,6 @@
 // libs/widgets/navigation_wrapper.dart
 import 'package:flutter/material.dart';
+import 'package:mone/core/services/notification/notification_service.dart';
 import 'package:mone/features/home/home_screen.dart';
 import 'package:mone/features/profile/profile_screen.dart';
 import 'package:mone/features/transactions/transaction_screen.dart';
@@ -20,6 +21,11 @@ class NavigationWrapperState extends State<NavigationWrapper> {
   void initState() {
     super.initState();
     _selectedPageIndex = widget.selectedPageIndex;
+    _requestNotificationPermissions();
+  }
+
+  Future<void> _requestNotificationPermissions() async {
+    await NotificationService.requestPermissions();
   }
 
   final List<Widget> _screens = const [

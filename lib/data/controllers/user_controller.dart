@@ -64,4 +64,15 @@ class UserController extends StateNotifier<UserEntity?> {
     _authRepository.logout();
     await clearUser();
   }
+
+  /// Updates FCM token for the current user
+  Future<void> updateFcmToken() async {
+    await _authRepository.updateFcmToken();
+    if (state != null) {
+      final updatedUser = await _userRepository.fetchUser(state!.id);
+      if (updatedUser != null) {
+        state = updatedUser;
+      }
+    }
+  }
 }
