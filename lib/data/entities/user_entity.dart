@@ -1,5 +1,8 @@
 // lib/data/entities/user_entity.dart
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mone/data/entities/transaction_entity.dart';
+
 class UserEntity {
   final String id;
   final String name;
@@ -44,6 +47,7 @@ class UserEntity {
       updatedAt:
           map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : null,
       fcmToken: map['fcmToken'],
+
     );
   }
 
