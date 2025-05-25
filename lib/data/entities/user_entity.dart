@@ -11,6 +11,7 @@ class UserEntity {
   final List<String> friend;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final String? fcmToken;
 
   UserEntity({
     required this.id,
@@ -23,6 +24,7 @@ class UserEntity {
     required this.friend,
     required this.createdAt,
     this.updatedAt,
+    this.fcmToken,
   });
 
   factory UserEntity.fromMap(String id, Map<String, dynamic> map) {
@@ -41,6 +43,7 @@ class UserEntity {
               : DateTime.now(),
       updatedAt:
           map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : null,
+      fcmToken: map['fcmToken'],
     );
   }
 
@@ -55,6 +58,7 @@ class UserEntity {
       'friend': friend,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'fcmToken': fcmToken,
     };
   }
 
@@ -69,6 +73,7 @@ class UserEntity {
     List<String>? friend,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? fcmToken,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -81,6 +86,7 @@ class UserEntity {
       friend: friend ?? this.friend,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      fcmToken: fcmToken ?? this.fcmToken,
     );
   }
 
@@ -100,4 +106,7 @@ class UserEntity {
 
   /// Check if user has bills
   bool get hasBills => bill.isNotEmpty;
+
+  /// Check if user has FCM token for notifications
+  bool get hasNotificationToken => fcmToken != null && fcmToken!.isNotEmpty;
 }
