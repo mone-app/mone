@@ -1,7 +1,7 @@
 // libs/widgets/navigation_wrapper.dart
 import 'package:flutter/material.dart';
 import 'package:mone/core/services/notification/notification_service.dart';
-import 'package:mone/features/home/home_screen.dart';
+import 'package:mone/features/bill/bill_screen.dart';
 import 'package:mone/features/profile/profile_screen.dart';
 import 'package:mone/features/transactions/transaction_screen.dart';
 
@@ -30,7 +30,7 @@ class NavigationWrapperState extends State<NavigationWrapper> {
 
   final List<Widget> _screens = const [
     TransactionScreen(),
-    HomeScreen(),
+    BillScreen(),
     ProfileScreen(),
   ];
 
@@ -54,7 +54,7 @@ class NavigationWrapperState extends State<NavigationWrapper> {
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt_long_outlined),
             activeIcon: Icon(Icons.receipt_long),
-            label: 'Activity',
+            label: 'Bill',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),

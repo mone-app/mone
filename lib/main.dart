@@ -29,13 +29,6 @@ class App extends ConsumerStatefulWidget {
 
 class _AppState extends ConsumerState<App> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(userProvider.notifier).updateFcmToken();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -43,7 +36,6 @@ class _AppState extends ConsumerState<App> {
       navigatorKey: NavigationService.navigatorKey,
       theme: ThemeData(),
       onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings, ref),
-      initialRoute: RouteEnum.login,
       builder: (context, child) {
         return StreamBuilder<User?>(
           stream: ref.read(authRepositoryProvider).auth.authStateChanges(),
@@ -57,7 +49,7 @@ class _AppState extends ConsumerState<App> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (authSnapshot.hasData) {
                 FcmTokenService().updateFcmToken();
-                NavigationService.replaceWith(RouteEnum.home);
+                NavigationService.replaceWith(RouteEnum.transaction);
               } else {
                 NavigationService.replaceWith(RouteEnum.login);
               }
