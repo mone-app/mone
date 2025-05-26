@@ -17,8 +17,8 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  bool _isFriendsLoading = false;
-  bool _isBillsLoading = false;
+  final bool _isFriendsLoading = false;
+  final bool _isBillsLoading = false;
 
   @override
   void initState() {

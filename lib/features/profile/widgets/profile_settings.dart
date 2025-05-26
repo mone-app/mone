@@ -10,12 +10,12 @@ class ProfileSettingItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const ProfileSettingItem({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.value,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class ProfileSettingItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             spreadRadius: 1,
           ),
@@ -40,8 +40,8 @@ class ProfileSettingItem extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-          splashColor: colorScheme.primary.withOpacity(0.1),
-          highlightColor: colorScheme.primary.withOpacity(0.05),
+          splashColor: colorScheme.primary.withValues(alpha: 0.1),
+          highlightColor: colorScheme.primary.withValues(alpha: 0.05),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             child: Row(
@@ -49,7 +49,7 @@ class ProfileSettingItem extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: colorScheme.primary.withOpacity(0.1),
+                    color: colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, size: 20, color: colorScheme.primary),
@@ -84,7 +84,7 @@ class ProfileSettingItem extends StatelessWidget {
 }
 
 class ProfileSettingsSection extends StatelessWidget {
-  const ProfileSettingsSection({Key? key}) : super(key: key);
+  const ProfileSettingsSection({super.key});
 
   @override
   Widget build(BuildContext context) {

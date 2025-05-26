@@ -11,11 +11,17 @@ class TransactionController extends StateNotifier<List<TransactionEntity>> {
   final UserRepository _userRepository;
   final Ref _ref;
 
-  TransactionController(this._transactionRepository, this._userRepository, this._ref)
-    : super([]);
+  TransactionController(
+    this._transactionRepository,
+    this._userRepository,
+    this._ref,
+  ) : super([]);
 
   // Create a new transaction and update user balance
-  Future<void> createTransaction(String userId, TransactionEntity transaction) async {
+  Future<void> createTransaction(
+    String userId,
+    TransactionEntity transaction,
+  ) async {
     try {
       // Create the transaction in user's subcollection
       await _transactionRepository.createTransaction(userId, transaction);
@@ -29,7 +35,6 @@ class TransactionController extends StateNotifier<List<TransactionEntity>> {
       // Sort by date (newest first)
       state.sort((a, b) => b.date.compareTo(a.date));
     } catch (e) {
-      print('Error creating transaction: $e');
       rethrow;
     }
   }
@@ -42,7 +47,9 @@ class TransactionController extends StateNotifier<List<TransactionEntity>> {
   ) async {
     try {
       // Find the original transaction to calculate balance difference
-      final originalTransaction = state.firstWhere((t) => t.id == transactionId);
+      final originalTransaction = state.firstWhere(
+        (t) => t.id == transactionId,
+      );
 
       // Revert the original transaction's effect on balance
       await _updateUserBalance(userId, originalTransaction, isAdding: false);
@@ -51,15 +58,20 @@ class TransactionController extends StateNotifier<List<TransactionEntity>> {
       await _updateUserBalance(userId, updatedTransaction, isAdding: true);
 
       // Update the transaction in Firestore subcollection
-      await _transactionRepository.updateTransaction(userId, updatedTransaction);
+      await _transactionRepository.updateTransaction(
+        userId,
+        updatedTransaction,
+      );
 
       // Update local state
-      state = state.map((t) => t.id == transactionId ? updatedTransaction : t).toList();
+      state =
+          state
+              .map((t) => t.id == transactionId ? updatedTransaction : t)
+              .toList();
 
       // Sort by date (newest first)
       state.sort((a, b) => b.date.compareTo(a.date));
     } catch (e) {
-      print('Error updating transaction: $e');
       rethrow;
     }
   }
@@ -79,7 +91,6 @@ class TransactionController extends StateNotifier<List<TransactionEntity>> {
       // Update local state
       state = state.where((t) => t.id != transactionId).toList();
     } catch (e) {
-      print('Error deleting transaction: $e');
       rethrow;
     }
   }
@@ -118,7 +129,6 @@ class TransactionController extends StateNotifier<List<TransactionEntity>> {
       // Update local state in user provider
       _ref.read(userProvider.notifier).updateUserLocally(updatedUser);
     } catch (e) {
-      print('Error updating user balance: $e');
       rethrow;
     }
   }

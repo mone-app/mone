@@ -9,13 +9,13 @@ class ProfileStatItem extends StatelessWidget {
   final bool isLoading;
 
   const ProfileStatItem({
-    Key? key,
+    super.key,
     required this.count,
     required this.label,
     required this.icon,
     required this.color,
     this.isLoading = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class ProfileStatItem extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, size: 24, color: color),
@@ -70,12 +70,12 @@ class ProfileStatsSection extends StatelessWidget {
   final bool isBillsLoading;
 
   const ProfileStatsSection({
-    Key? key,
+    super.key,
     this.friendCount = 0,
     this.billCount = 0,
     this.isFriendsLoading = false,
     this.isBillsLoading = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +88,7 @@ class ProfileStatsSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             spreadRadius: 1,
           ),

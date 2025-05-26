@@ -45,8 +45,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             .read(userProvider.notifier)
             .login(_emailController.text, _passwordController.text);
       } catch (e) {
-        // ignore: avoid_print
-        print(e);
         // Show error to user (optional)
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

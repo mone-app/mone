@@ -209,8 +209,8 @@ class SearchResults extends ConsumerWidget {
           style: IconButton.styleFrom(
             backgroundColor:
                 isFriend
-                    ? theme.colorScheme.tertiary.withOpacity(0.1)
-                    : theme.colorScheme.primary.withOpacity(0.1),
+                    ? theme.colorScheme.tertiary.withValues(alpha: 0.1)
+                    : theme.colorScheme.primary.withValues(alpha: 0.1),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),

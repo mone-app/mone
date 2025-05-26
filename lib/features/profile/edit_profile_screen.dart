@@ -155,8 +155,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            colorScheme.primary.withOpacity(0.8),
-            colorScheme.onPrimaryContainer.withOpacity(0.7),
+            colorScheme.primary.withValues(alpha: 0.8),
+            colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -197,7 +197,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             spreadRadius: 2,
           ),
@@ -211,7 +211,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         textCapitalization: TextCapitalization.words,
         validator: AuthValidator.validateName,
         onChanged: (value) {
-          setState(() {}); // Update the header display name in real-time
+          setState(() {});
         },
       ),
     );

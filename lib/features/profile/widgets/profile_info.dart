@@ -18,7 +18,7 @@ class ProfileInfoItem {
 class ProfileInfoCard extends StatelessWidget {
   final List<ProfileInfoItem> items;
 
-  const ProfileInfoCard({Key? key, required this.items}) : super(key: key);
+  const ProfileInfoCard({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class ProfileInfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             spreadRadius: 1,
           ),
@@ -52,7 +52,7 @@ class ProfileInfoCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(item.icon, size: 18, color: colorScheme.primary),
@@ -84,7 +84,7 @@ class ProfileInfoCard extends StatelessWidget {
 class ProfileInfoSection extends StatelessWidget {
   final UserEntity user;
 
-  const ProfileInfoSection({Key? key, required this.user}) : super(key: key);
+  const ProfileInfoSection({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {

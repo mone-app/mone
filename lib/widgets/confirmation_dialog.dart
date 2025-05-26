@@ -13,7 +13,7 @@ class ConfirmationDialog extends StatelessWidget {
   final Color? iconColor;
 
   const ConfirmationDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     required this.confirmButtonText,
@@ -22,7 +22,7 @@ class ConfirmationDialog extends StatelessWidget {
     this.onCancel,
     required this.icon,
     this.iconColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +32,7 @@ class ConfirmationDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: colorScheme.surface,
       elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -44,24 +42,17 @@ class ConfirmationDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 30,
-                color: color,
-              ),
+              child: Icon(icon, size: 30, color: color),
             ),
             const SizedBox(height: 16),
 
             // Title
             Text(
               title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
@@ -87,7 +78,7 @@ class ConfirmationDialog extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: onCancel ?? () => Navigator.of(context).pop(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.surfaceVariant,
+                      backgroundColor: colorScheme.surfaceContainerHighest,
                       foregroundColor: colorScheme.onSurfaceVariant,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -96,9 +87,7 @@ class ConfirmationDialog extends StatelessWidget {
                     ),
                     child: Text(
                       cancelButtonText ?? 'Cancel',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -107,8 +96,8 @@ class ConfirmationDialog extends StatelessWidget {
                 // Confirm button
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () async {
-                      await onConfirm();
+                    onPressed: () {
+                      onConfirm();
                       Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
@@ -122,9 +111,7 @@ class ConfirmationDialog extends StatelessWidget {
                     ),
                     child: Text(
                       confirmButtonText,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

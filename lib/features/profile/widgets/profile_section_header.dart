@@ -7,11 +7,11 @@ class ProfileSectionHeader extends StatelessWidget {
   final Color? color;
 
   const ProfileSectionHeader({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,22 +22,15 @@ class ProfileSectionHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: themeColor.withOpacity(0.1),
+            color: themeColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            size: 20,
-            color: themeColor,
-          ),
+          child: Icon(icon, size: 20, color: themeColor),
         ),
         const SizedBox(width: 12),
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
       ],
     );

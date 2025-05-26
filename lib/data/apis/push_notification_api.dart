@@ -37,11 +37,9 @@ class NotificationApi {
       if (response.statusCode == 200) {
         return true;
       } else {
-        print('Error sending notification: ${response.body}');
         return false;
       }
     } catch (e) {
-      print('Exception sending notification: $e');
       return false;
     }
   }
