@@ -272,9 +272,9 @@ class TransactionListSection extends ConsumerWidget {
         ),
 
         // Transaction items for this date
-        ...transactions
-            .map((transaction) => _buildTransactionItem(context, transaction))
-            .toList(),
+        ...transactions.map(
+          (transaction) => _buildTransactionItem(context, transaction),
+        ),
       ],
     );
   }

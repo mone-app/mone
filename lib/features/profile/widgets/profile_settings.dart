@@ -1,8 +1,12 @@
 // lib/features/profile/widgets/profile_settings.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mone/core/themes/app_color.dart';
 import 'package:mone/features/profile/widgets/profile_section_header.dart';
+import 'package:mone/features/profile/widgets/theme_selection_dialog.dart';
 import 'package:mone/widgets/confirmation_dialog.dart';
+import 'package:mone/main.dart';
 
 class ProfileSettingItem extends StatelessWidget {
   final IconData icon;
@@ -84,8 +88,31 @@ class ProfileSettingItem extends StatelessWidget {
   }
 }
 
-class ProfileSettingsSection extends StatelessWidget {
+class ProfileSettingsSection extends StatefulWidget {
   const ProfileSettingsSection({super.key});
+
+  @override
+  State<ProfileSettingsSection> createState() => _ProfileSettingsSectionState();
+}
+
+class _ProfileSettingsSectionState extends State<ProfileSettingsSection> {
+  @override
+  void initState() {
+    super.initState();
+    themeService.addListener(_onThemeChanged);
+    notificationSettingsService.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    themeService.removeListener(_onThemeChanged);
+    notificationSettingsService.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,59 +126,57 @@ class ProfileSettingsSection extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        // Settings options
+        // Theme Settings - Now functional!
         ProfileSettingItem(
-          icon: Icons.dark_mode_outlined,
+          icon: themeService.themeIcon,
           title: "Theme",
-          value: "Dark",
-          onTap:
-              () => _showSettingDialog(
-                context,
-                "Theme Settings",
-                "Choose your preferred theme for the app.",
-                Icons.dark_mode_outlined,
-              ),
+          value: themeService.themeName,
+          onTap: () => _showThemeDialog(context),
         ),
 
         ProfileSettingItem(
           icon: Icons.notifications_outlined,
           title: "Notifications",
-          value: "Enabled",
-          onTap:
-              () => _showSettingDialog(
-                context,
-                "Notification Settings",
-                "Manage how you receive notifications from the app.",
-                Icons.notifications_outlined,
-              ),
-        ),
-
-        ProfileSettingItem(
-          icon: Icons.lock_outline,
-          title: "Privacy",
-          value: "Manage settings",
-          onTap:
-              () => _showSettingDialog(
-                context,
-                "Privacy Settings",
-                "Control who can see your profile and projects.",
-                Icons.lock_outline,
-              ),
+          value: notificationSettingsService.notificationStatus,
+          onTap: () => _showNotificationSettings(context),
         ),
 
         ProfileSettingItem(
           icon: Icons.help_outline,
           title: "Help & Support",
           value: "Contact us",
-          onTap:
-              () => _showSettingDialog(
-                context,
-                "Help & Support",
-                "Get assistance with using the app or report issues.",
-                Icons.help_outline,
-              ),
+          onTap: () => _showHelpSettings(context),
         ),
       ],
+    );
+  }
+
+  void _showThemeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => ThemeSelectionDialog(themeService: themeService),
+    );
+  }
+
+  void _showNotificationSettings(BuildContext context) {
+    _showSettingDialog(
+      context,
+      "Notification Permissions",
+      "Give us access to notifications so we can notify you about important updates, transactions, and activities",
+      Icons.notifications_outlined,
+      () {
+        notificationSettingsService.requestNotificationPermissions();
+      },
+    );
+  }
+
+  void _showHelpSettings(BuildContext context) {
+    _showSettingDialog(
+      context,
+      "Help & Support",
+      "For technical support, feature requests, or to report issues, please contact our support team at mone@support.com. We typically respond within 24 hours.",
+      Icons.help_outline,
+      () {},
     );
   }
 
@@ -160,6 +185,7 @@ class ProfileSettingsSection extends StatelessWidget {
     String title,
     String message,
     IconData icon,
+    FutureOr<void> Function() onConfirm,
   ) {
     showDialog(
       context: context,
@@ -170,15 +196,7 @@ class ProfileSettingsSection extends StatelessWidget {
             confirmButtonText: "OK",
             cancelButtonText: "Cancel",
             icon: icon,
-            onConfirm: () {
-              // This would contain actual functionality in a real implementation
-              // ScaffoldMessenger.of(context).showSnackBar(
-              //   SnackBar(
-              //     content: Text("$title selected"),
-              //     behavior: SnackBarBehavior.floating,
-              //   ),
-              // );
-            },
+            onConfirm: onConfirm,
           ),
     );
   }
