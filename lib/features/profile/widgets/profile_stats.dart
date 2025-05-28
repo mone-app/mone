@@ -1,5 +1,6 @@
 // lib/features/profile/widgets/profile_stats.dart
 import 'package:flutter/material.dart';
+import 'package:mone/core/themes/app_color.dart';
 
 class ProfileStatItem extends StatelessWidget {
   final String count;
@@ -84,7 +85,7 @@ class ProfileStatsSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.containerSurface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(

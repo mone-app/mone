@@ -1,5 +1,6 @@
 // lib/features/profile/widgets/profile_settings.dart
 import 'package:flutter/material.dart';
+import 'package:mone/core/themes/app_color.dart';
 import 'package:mone/features/profile/widgets/profile_section_header.dart';
 import 'package:mone/widgets/confirmation_dialog.dart';
 
@@ -24,7 +25,7 @@ class ProfileSettingItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.containerSurface(context),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(

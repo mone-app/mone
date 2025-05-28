@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mone/core/themes/app_color.dart';
 
 class CustomInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -40,7 +41,7 @@ class CustomInputField extends StatelessWidget {
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.containerSurface(context),
       ),
       validator: validator,
       onChanged: onChanged,

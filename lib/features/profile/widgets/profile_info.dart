@@ -1,5 +1,6 @@
 // lib/features/profile/widgets/profile_info.dart
 import 'package:flutter/material.dart';
+import 'package:mone/core/themes/app_color.dart';
 import 'package:mone/data/entities/user_entity.dart';
 import 'package:mone/features/profile/widgets/profile_section_header.dart';
 
@@ -27,7 +28,7 @@ class ProfileInfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.containerSurface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -107,6 +108,11 @@ class ProfileInfoSection extends StatelessWidget {
               icon: Icons.badge_outlined,
               label: "User ID",
               value: user.id,
+            ),
+            ProfileInfoItem(
+              icon: Icons.wallet,
+              label: "Balance",
+              value: "\$ ${user.balance.toStringAsFixed(2)}",
             ),
           ],
         ),
