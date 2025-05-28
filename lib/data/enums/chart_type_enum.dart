@@ -1,0 +1,1 @@
+enum ChartTypeEnum { pie, line }

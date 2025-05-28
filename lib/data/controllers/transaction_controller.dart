@@ -17,7 +17,10 @@ class TransactionController extends StateNotifier<List<TransactionEntity>> {
     this._ref,
   ) : super([]);
 
-  // Create a new transaction and update user balance
+  void setTransactions(List<TransactionEntity> transactions) {
+    state = transactions;
+  }
+
   Future<void> createTransaction(
     String userId,
     TransactionEntity transaction,
