@@ -34,7 +34,12 @@ class _AppState extends ConsumerState<App> {
     return MaterialApp(
       title: 'Mone',
       navigatorKey: NavigationService.navigatorKey,
-      theme: ThemeData(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 0, 38, 110),
+          brightness: Brightness.dark,
+        ),
+      ),
       onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings, ref),
       builder: (context, child) {
         return StreamBuilder<User?>(
