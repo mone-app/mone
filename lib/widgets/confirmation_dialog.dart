@@ -1,6 +1,7 @@
 // lib/features/profile/widgets/settings_dialog.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mone/core/themes/app_color.dart';
 
 class ConfirmationDialog extends StatelessWidget {
   final String title;
@@ -101,7 +102,7 @@ class ConfirmationDialog extends StatelessWidget {
                       Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.containerSurface(context),
                       backgroundColor: color,
                       elevation: 0,
                       shape: RoundedRectangleBorder(

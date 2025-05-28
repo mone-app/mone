@@ -1,10 +1,12 @@
-// lib/features/transaction/screens/transaction_screen.dart
+// lib/features/transactions/transaction2_screen.dart (Updated)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mone/data/entities/user_entity.dart';
 import 'package:mone/data/providers/user_provider.dart';
-import 'package:mone/features/transactions/widgets/transaction_header.dart';
-import 'package:mone/features/transactions/widgets/transaction_list.dart';
+import 'package:mone/features/transactions/widgets/balance_section.dart';
+import 'package:mone/features/transactions/widgets/chart_container.dart';
+import 'package:mone/features/transactions/transaction_form_screen.dart';
+import 'package:mone/features/transactions/widgets/transaction_list_section.dart';
 
 class TransactionScreen extends ConsumerStatefulWidget {
   const TransactionScreen({super.key});
@@ -21,15 +23,22 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
   }
 
   Future<void> _handleUserFetch() async {
-    final user = ref.read(userProvider);
-    if (user == null) {
-      ref.read(userProvider.notifier).fetchUser();
-    }
+    ref.read(userProvider.notifier).fetchUser();
+  }
+
+  void _navigateToAddTransaction() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const TransactionFormScreen()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider);
+
+    if (user == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return _buildContent(context, user);
   }
@@ -38,20 +47,38 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-
     return _buildTransactionContent(context, user);
   }
 
   Widget _buildTransactionContent(BuildContext context, UserEntity user) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Transactions'), automaticallyImplyLeading: false),
-      body: Column(
-        children: [
-          // Fixed header section
-          TransactionHeader(user: user),
+      // Simple AppBar
+      appBar: AppBar(
+        title: const Text(
+          'Transactions',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: _navigateToAddTransaction,
+          ),
+        ],
 
-          // Real-time transaction list using StreamBuilder
-          Expanded(child: TransactionList(user: user)),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 0,
+        scrolledUnderElevation: 1,
+      ),
+      body: CustomScrollView(
+        slivers: [
+          // Balance Section with Filter
+          SliverToBoxAdapter(child: BalanceSection()),
+
+          // Chart container
+          SliverToBoxAdapter(child: ChartContainer(userId: user.id)),
+
+          // Placeholder for transaction list (to be added later)
+          SliverToBoxAdapter(child: TransactionListSection(userId: user.id)),
         ],
       ),
     );
