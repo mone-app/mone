@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mone/core/themes/app_color.dart';
 import 'package:mone/data/entities/user_entity.dart';
 import 'package:mone/data/providers/user_provider.dart';
 import 'package:mone/features/auth/utils/auth_validator.dart';
@@ -155,8 +156,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            colorScheme.primary.withOpacity(0.8),
-            colorScheme.onPrimaryContainer.withOpacity(0.7),
+            colorScheme.primary.withValues(alpha: 0.8),
+            colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -190,14 +191,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.containerSurface(context),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(20),
           bottomRight: Radius.circular(20),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             spreadRadius: 2,
           ),
@@ -211,7 +212,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         textCapitalization: TextCapitalization.words,
         validator: AuthValidator.validateName,
         onChanged: (value) {
-          setState(() {}); // Update the header display name in real-time
+          setState(() {});
         },
       ),
     );

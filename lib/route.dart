@@ -20,9 +20,14 @@ class AppRouter {
       case RouteEnum.register:
         return MaterialPageRoute(builder: (context) => RegisterScreen());
 
-      case RouteEnum.home:
+      case RouteEnum.transaction:
         return MaterialPageRoute(
           builder: (context) => const NavigationWrapper(selectedPageIndex: 0),
+        );
+
+      case RouteEnum.bill:
+        return MaterialPageRoute(
+          builder: (context) => const NavigationWrapper(selectedPageIndex: 1),
         );
 
       case RouteEnum.profile:

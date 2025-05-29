@@ -25,9 +25,9 @@ class ProfileHeader extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                colorScheme.primary.withOpacity(0.8),
+                colorScheme.primary.withValues(alpha: 0.8),
 
-                colorScheme.onPrimaryContainer.withOpacity(0.7),
+                colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -50,7 +50,10 @@ class ProfileHeader extends StatelessWidget {
                 ShaderMask(
                   shaderCallback:
                       (bounds) => LinearGradient(
-                        colors: [Colors.white, Colors.white.withOpacity(0.9)],
+                        colors: [
+                          Colors.white,
+                          Colors.white.withValues(alpha: 0.9),
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ).createShader(bounds),
@@ -78,17 +81,17 @@ class ProfileHeader extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
                       child: Text(
                         "@${user.username}",
                         style: textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.95),
+                          color: Colors.white.withValues(alpha: 0.95),
                           letterSpacing: 0.3,
                         ),
                         maxLines: 1,

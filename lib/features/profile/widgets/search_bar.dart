@@ -69,10 +69,7 @@ class CustomSearchBar extends StatelessWidget {
                           ),
                           isDense: true,
                         ),
-                        style: TextStyle(
-                          color: Colors.grey.shade900,
-                          fontSize: 15,
-                        ),
+                        style: TextStyle(fontSize: 15),
                       )
                       : Center(
                         child: Text(

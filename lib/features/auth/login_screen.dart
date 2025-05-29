@@ -45,8 +45,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             .read(userProvider.notifier)
             .login(_emailController.text, _passwordController.text);
       } catch (e) {
-        // ignore: avoid_print
-        print(e);
         // Show error to user (optional)
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -106,7 +104,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: Text(
                           'Forgot Password?',
                           style: TextStyle(
-                            color: Theme.of(context).primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -142,7 +140,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: Text(
                             'Register',
                             style: TextStyle(
-                              color: Theme.of(context).primaryColor,
+                              color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

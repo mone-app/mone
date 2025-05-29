@@ -1,5 +1,6 @@
 // lib/features/profile/widgets/profile_info.dart
 import 'package:flutter/material.dart';
+import 'package:mone/core/themes/app_color.dart';
 import 'package:mone/data/entities/user_entity.dart';
 import 'package:mone/features/profile/widgets/profile_section_header.dart';
 
@@ -18,7 +19,7 @@ class ProfileInfoItem {
 class ProfileInfoCard extends StatelessWidget {
   final List<ProfileInfoItem> items;
 
-  const ProfileInfoCard({Key? key, required this.items}) : super(key: key);
+  const ProfileInfoCard({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +28,11 @@ class ProfileInfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.containerSurface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             spreadRadius: 1,
           ),
@@ -52,7 +53,7 @@ class ProfileInfoCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(item.icon, size: 18, color: colorScheme.primary),
@@ -84,7 +85,7 @@ class ProfileInfoCard extends StatelessWidget {
 class ProfileInfoSection extends StatelessWidget {
   final UserEntity user;
 
-  const ProfileInfoSection({Key? key, required this.user}) : super(key: key);
+  const ProfileInfoSection({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +108,11 @@ class ProfileInfoSection extends StatelessWidget {
               icon: Icons.badge_outlined,
               label: "User ID",
               value: user.id,
+            ),
+            ProfileInfoItem(
+              icon: Icons.wallet,
+              label: "Balance",
+              value: "\$ ${user.balance.toStringAsFixed(2)}",
             ),
           ],
         ),

@@ -194,10 +194,10 @@ class NotificationService {
             break;
           default:
             // Handle other types or default action
-            NavigationService.navigateTo(RouteEnum.home);
+            NavigationService.navigateTo(RouteEnum.transaction);
         }
       } else {
-        NavigationService.navigateTo(RouteEnum.home);
+        NavigationService.navigateTo(RouteEnum.transaction);
       }
     }
   }

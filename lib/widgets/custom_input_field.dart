@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mone/core/themes/app_color.dart';
 
 class CustomInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -11,6 +12,7 @@ class CustomInputField extends StatelessWidget {
   final TextInputType keyboardType;
   final TextCapitalization textCapitalization;
   final Function(String)? onChanged;
+  final bool isBordered;
 
   const CustomInputField({
     super.key,
@@ -24,6 +26,7 @@ class CustomInputField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.textCapitalization = TextCapitalization.none,
     this.onChanged,
+    this.isBordered = true,
   });
 
   @override
@@ -38,9 +41,45 @@ class CustomInputField extends StatelessWidget {
         hintText: hintText,
         prefixIcon: Icon(prefixIcon),
         suffixIcon: suffixIcon,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+        border:
+            isBordered
+                ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                )
+                : OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+        enabledBorder:
+            isBordered
+                ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                )
+                : OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+        focusedBorder:
+            isBordered
+                ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2.0,
+                  ),
+                )
+                : OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(15),
+                ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.containerSurface(context),
       ),
       validator: validator,
       onChanged: onChanged,

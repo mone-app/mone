@@ -3,20 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
+import 'package:mone/core/themes/app_color.dart';
 import 'package:mone/data/entities/transaction_entity.dart';
 import 'package:mone/data/enums/transaction_type_enum.dart';
 import 'package:mone/data/models/category_model.dart';
 import 'package:mone/data/models/method_model.dart';
 import 'package:mone/data/providers/user_provider.dart';
 import 'package:mone/data/providers/transaction_provider.dart';
+import 'package:mone/widgets/custom_button.dart';
+import 'package:mone/widgets/custom_input_field.dart';
+import 'package:mone/widgets/confirmation_dialog.dart';
 
 class TransactionFormScreen extends ConsumerStatefulWidget {
-  final TransactionEntity? transaction; // For editing existing transactions
+  final TransactionEntity? transaction;
 
   const TransactionFormScreen({super.key, this.transaction});
 
   @override
-  ConsumerState<TransactionFormScreen> createState() => _TransactionFormScreenState();
+  ConsumerState<TransactionFormScreen> createState() =>
+      _TransactionFormScreenState();
 }
 
 class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
@@ -30,6 +35,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
   bool _isLoading = false;
+  final bool _isBordered = true;
 
   bool get isEditing => widget.transaction != null;
 
@@ -78,7 +84,8 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
         // Reset category when type changes
         if (type == TransactionTypeEnum.income) {
           final incomeCategories = CategoryModel.getIncomeCategories();
-          _selectedCategory = incomeCategories.isNotEmpty ? incomeCategories.first : null;
+          _selectedCategory =
+              incomeCategories.isNotEmpty ? incomeCategories.first : null;
         } else {
           final expenseCategories = CategoryModel.getExpenseCategories();
           _selectedCategory =
@@ -94,6 +101,16 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (date != null) {
       setState(() {
@@ -103,7 +120,20 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
   }
 
   Future<void> _selectTime() async {
-    final time = await showTimePicker(context: context, initialTime: _selectedTime);
+    final time = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
     if (time != null) {
       setState(() {
         _selectedTime = time;
@@ -180,307 +210,49 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
 
   void _showSuccessMessage(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.green));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
     }
   }
 
   void _showErrorMessage(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final availableCategories = _getAvailableCategories();
-    final availableMethods = _getAvailableMethods();
-
-    return Scaffold(
-      appBar: AppBar(title: Text(isEditing ? 'Edit Transaction' : 'Add Transaction')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Transaction Type
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Transaction Type',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: RadioListTile<TransactionTypeEnum>(
-                                title: const Text('Income'),
-                                value: TransactionTypeEnum.income,
-                                groupValue: _selectedType,
-                                onChanged: _onTypeChanged,
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                            ),
-                            Expanded(
-                              child: RadioListTile<TransactionTypeEnum>(
-                                title: const Text('Expense'),
-                                value: TransactionTypeEnum.expense,
-                                groupValue: _selectedType,
-                                onChanged: _onTypeChanged,
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Amount Field
-                TextFormField(
-                  controller: _amountController,
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
-                    border: OutlineInputBorder(),
-                    prefixText: '\$ ',
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter an amount';
-                    }
-                    if (double.tryParse(value) == null) {
-                      return 'Please enter a valid number';
-                    }
-                    if (double.parse(value) <= 0) {
-                      return 'Amount must be greater than 0';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 16),
-
-                // Category Dropdown
-                if (availableCategories.isNotEmpty)
-                  DropdownButtonFormField<CategoryModel>(
-                    value:
-                        availableCategories.contains(_selectedCategory)
-                            ? _selectedCategory
-                            : null,
-                    decoration: const InputDecoration(
-                      labelText: 'Category',
-                      border: OutlineInputBorder(),
-                    ),
-                    items:
-                        availableCategories.map((category) {
-                          return DropdownMenuItem(
-                            value: category,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(category.icon, size: 20),
-                                const SizedBox(width: 8),
-                                Flexible(
-                                  child: Text(
-                                    category.name,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                    onChanged: (CategoryModel? value) {
-                      setState(() {
-                        _selectedCategory = value;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select a category';
-                      }
-                      return null;
-                    },
-                  ),
-
-                const SizedBox(height: 16),
-
-                // Payment Method Dropdown
-                if (availableMethods.isNotEmpty)
-                  DropdownButtonFormField<MethodModel>(
-                    value:
-                        availableMethods.contains(_selectedMethod)
-                            ? _selectedMethod
-                            : null,
-                    decoration: const InputDecoration(
-                      labelText: 'Payment Method',
-                      border: OutlineInputBorder(),
-                    ),
-                    items:
-                        availableMethods.map((method) {
-                          return DropdownMenuItem(
-                            value: method,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(method.icon, size: 20),
-                                const SizedBox(width: 8),
-                                Flexible(
-                                  child: Text(
-                                    method.name,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                    onChanged: (MethodModel? value) {
-                      setState(() {
-                        _selectedMethod = value;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select a payment method';
-                      }
-                      return null;
-                    },
-                  ),
-
-                const SizedBox(height: 16),
-
-                // Description Field
-                TextFormField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description (Optional)',
-                    border: OutlineInputBorder(),
-                    hintText: 'Add a note about this transaction...',
-                  ),
-                  maxLines: 3,
-                  minLines: 1,
-                ),
-
-                const SizedBox(height: 16),
-
-                // Date and Time Pickers
-                Row(
-                  children: [
-                    Expanded(
-                      child: Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.calendar_today),
-                          title: const Text('Date'),
-                          subtitle: Text(
-                            DateFormat('MMM dd, yyyy').format(_selectedDate),
-                          ),
-                          onTap: _selectDate,
-                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.access_time),
-                          title: const Text('Time'),
-                          subtitle: Text(_selectedTime.format(context)),
-                          onTap: _selectTime,
-                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 32),
-
-                // Submit Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _submitForm,
-                    child:
-                        _isLoading
-                            ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : Text(
-                              isEditing ? 'Update Transaction' : 'Save Transaction',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                  ),
-                ),
-
-                // Delete button for editing mode
-                if (isEditing) ...[
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: OutlinedButton(
-                      onPressed: _isLoading ? null : _showDeleteConfirmation,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: const BorderSide(color: Colors.red),
-                      ),
-                      child: const Text(
-                        'Delete Transaction',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete Transaction'),
-          content: const Text(
-            'Are you sure you want to delete this transaction? This action cannot be undone.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                await _deleteTransaction();
-              },
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete'),
-            ),
-          ],
+        return ConfirmationDialog(
+          title: 'Delete Transaction',
+          description:
+              'Are you sure you want to delete this transaction? This action cannot be undone.',
+          confirmButtonText: 'Delete',
+          cancelButtonText: 'Cancel',
+          icon: Icons.delete_outline,
+          iconColor: Colors.red,
+          onConfirm: () async {
+            await _deleteTransaction();
+          },
         );
       },
     );
@@ -513,6 +285,392 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
         });
       }
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final availableCategories = _getAvailableCategories();
+    final availableMethods = _getAvailableMethods();
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          isEditing ? 'Edit Transaction' : 'Add Transaction',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header with icon
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isEditing ? Icons.edit : Icons.add_circle_outline,
+                        size: 32,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Transaction Type Selection
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.containerSurface(context),
+                      borderRadius: BorderRadius.circular(15),
+                      border:
+                          _isBordered
+                              ? Border.all(color: colorScheme.primary)
+                              : null,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _buildTypeButton(
+                            context,
+                            'Income',
+                            Icons.trending_up,
+                            TransactionTypeEnum.income,
+                            Colors.green,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: _buildTypeButton(
+                            context,
+                            'Expense',
+                            Icons.trending_down,
+                            TransactionTypeEnum.expense,
+                            Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Amount Field
+                  CustomInputField(
+                    controller: _amountController,
+                    labelText: 'Amount',
+                    hintText: 'Enter amount',
+                    prefixIcon: Icons.attach_money,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter an amount';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Please enter a valid number';
+                      }
+                      if (double.parse(value) <= 0) {
+                        return 'Amount must be greater than 0';
+                      }
+                      return null;
+                    },
+                    isBordered: _isBordered,
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Category Dropdown
+                  if (availableCategories.isNotEmpty)
+                    _buildDropdownField(
+                      'Category',
+                      Icons.category,
+                      availableCategories,
+                      _selectedCategory,
+                      (value) => setState(() => _selectedCategory = value),
+                      (category) => category.name,
+                      (category) => category.icon,
+                    ),
+
+                  const SizedBox(height: 16),
+
+                  // Payment Method Dropdown
+                  if (availableMethods.isNotEmpty)
+                    _buildDropdownField(
+                      'Payment Method',
+                      Icons.payment,
+                      availableMethods,
+                      _selectedMethod,
+                      (value) => setState(() => _selectedMethod = value),
+                      (method) => method.name,
+                      (method) => method.icon,
+                    ),
+
+                  const SizedBox(height: 16),
+
+                  // Description Field
+                  CustomInputField(
+                    controller: _descriptionController,
+                    labelText: 'Description',
+                    hintText: 'Add a note about this transaction...',
+                    prefixIcon: Icons.note_outlined,
+                    isBordered: _isBordered,
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Date and Time Selection
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildDateTimeCard(
+                          'Date',
+                          Icons.calendar_today,
+                          DateFormat('MMM dd, yyyy').format(_selectedDate),
+                          _selectDate,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildDateTimeCard(
+                          'Time',
+                          Icons.access_time,
+                          _selectedTime.format(context),
+                          _selectTime,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Submit Button
+                  CustomButton(
+                    text: isEditing ? 'Update Transaction' : 'Save Transaction',
+                    onPressed: _submitForm,
+                    isLoading: _isLoading,
+                    icon: isEditing ? Icons.update : Icons.save,
+                  ),
+
+                  // Delete button for editing mode
+                  if (isEditing) ...[
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: _isLoading ? null : _showDeleteConfirmation,
+                      icon: const Icon(Icons.delete_outline),
+                      label: const Text('Delete Transaction'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: const BorderSide(color: Colors.red),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTypeButton(
+    BuildContext context,
+    String title,
+    IconData icon,
+    TransactionTypeEnum type,
+    Color color,
+  ) {
+    final isSelected = _selectedType == type;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return GestureDetector(
+      onTap: () => _onTypeChanged(type),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? colorScheme.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color:
+                  isSelected
+                      ? colorScheme.onPrimary
+                      : colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color:
+                    isSelected
+                        ? colorScheme.onPrimary
+                        : colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownField<T>(
+    String label,
+    IconData icon,
+    List<T> items,
+    T? selectedValue,
+    void Function(T?) onChanged,
+    String Function(T) getTitle,
+    IconData Function(T) getIcon,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: AppColors.containerSurface(context),
+      ),
+      child: DropdownButtonFormField<T>(
+        value: items.contains(selectedValue) ? selectedValue : null,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon),
+          filled: true,
+          fillColor: Colors.transparent,
+          border:
+              _isBordered
+                  ? OutlineInputBorder(borderRadius: BorderRadius.circular(15))
+                  : InputBorder.none,
+          enabledBorder:
+              _isBordered
+                  ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  )
+                  : InputBorder.none,
+          focusedBorder:
+              _isBordered
+                  ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 2.0,
+                    ),
+                  )
+                  : InputBorder.none,
+        ),
+        items:
+            items.map((item) {
+              return DropdownMenuItem(
+                value: item,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(getIcon(item), size: 20),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        getTitle(item),
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+        onChanged: onChanged,
+        validator: (value) {
+          if (value == null) {
+            return 'Please select a $label';
+          }
+          return null;
+        },
+        icon: const Icon(Icons.keyboard_arrow_down),
+      ),
+    );
+  }
+
+  Widget _buildDateTimeCard(
+    String title,
+    IconData icon,
+    String value,
+    VoidCallback onTap,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.containerSurface(context),
+          borderRadius: BorderRadius.circular(15),
+          border: _isBordered ? Border.all(color: colorScheme.primary) : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 20, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const Spacer(),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   // Get available categories based on selected type
