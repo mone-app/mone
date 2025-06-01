@@ -344,73 +344,92 @@ class _CreateSplitBillScreenState extends ConsumerState<CreateSplitBillScreen> {
       data: (allUsers) {
         if (currentUser == null) return;
 
-        // Filter to only show friends
+        // Filter to only show friends who are not already selected
         final friends =
             allUsers
                 .where(
                   (user) =>
-                      user.id != currentUser.id && currentUser.friend.contains(user.id),
+                      user.id != currentUser.id &&
+                      currentUser.friend.contains(user.id) &&
+                      !_selectedFriends.any(
+                        (selected) => selected.id == user.id,
+                      ), // Prevent duplicates
                 )
                 .toList();
+
+        // Create a local copy to manage checkbox states within the dialog
+        List<UserEntity> tempSelectedFriends = List.from(_selectedFriends);
 
         showDialog(
           context: context,
           builder:
-              (context) => AlertDialog(
-                title: const Text('Add Friends'),
-                content: SizedBox(
-                  width: double.maxFinite,
-                  height: 300,
-                  child:
-                      friends.isEmpty
-                          ? const Center(
-                            child: Text(
-                              'No friends available.\nAdd friends first to split bills.',
-                            ),
-                          )
-                          : ListView.builder(
-                            itemCount: friends.length,
-                            itemBuilder: (context, index) {
-                              final friend = friends[index];
-                              final isSelected = _selectedFriends.any(
-                                (f) => f.id == friend.id,
-                              );
+              (context) => StatefulBuilder(
+                builder:
+                    (context, setDialogState) => AlertDialog(
+                      title: const Text('Add Friends'),
+                      content: SizedBox(
+                        width: double.maxFinite,
+                        height: 300,
+                        child:
+                            friends.isEmpty
+                                ? const Center(
+                                  child: Text(
+                                    'No more friends available.\nAll your friends are already added or add more friends first.',
+                                  ),
+                                )
+                                : ListView.builder(
+                                  itemCount: friends.length,
+                                  itemBuilder: (context, index) {
+                                    final friend = friends[index];
+                                    final isSelected = tempSelectedFriends.any(
+                                      (f) => f.id == friend.id,
+                                    );
 
-                              return CheckboxListTile(
-                                value: isSelected,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value == true) {
-                                      _selectedFriends.add(friend);
-                                    } else {
-                                      _selectedFriends.removeWhere(
-                                        (f) => f.id == friend.id,
-                                      );
-                                    }
-                                  });
-                                },
-                                title: Text(friend.name),
-                                subtitle: Text('@${friend.username}'),
-                                secondary: CircleAvatar(
-                                  child: Text(friend.name.substring(0, 1).toUpperCase()),
+                                    return CheckboxListTile(
+                                      value: isSelected,
+                                      onChanged: (value) {
+                                        setDialogState(() {
+                                          if (value == true) {
+                                            if (!tempSelectedFriends.any(
+                                              (f) => f.id == friend.id,
+                                            )) {
+                                              tempSelectedFriends.add(friend);
+                                            }
+                                          } else {
+                                            tempSelectedFriends.removeWhere(
+                                              (f) => f.id == friend.id,
+                                            );
+                                          }
+                                        });
+                                      },
+                                      title: Text(friend.name),
+                                      subtitle: Text('@${friend.username}'),
+                                      secondary: CircleAvatar(
+                                        child: Text(
+                                          friend.name.substring(0, 1).toUpperCase(),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _recalculateSplit();
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Add Selected'),
-                  ),
-                ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Cancel'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectedFriends = tempSelectedFriends;
+                            });
+                            _recalculateSplit();
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Add Selected'),
+                        ),
+                      ],
+                    ),
               ),
         );
       },
