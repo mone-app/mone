@@ -58,7 +58,7 @@ class TransactionEntity {
       method: MethodModel.parseMethodFromId(map['method'] ?? ''),
       category: CategoryModel.parseCategoryFromId(map['category'] ?? ''),
       description: map['description'],
-      isEditableAndDeletable: map['isEditable'] ?? true,
+      isEditableAndDeletable: map['isEditableAndDeletable'] ?? true,
       title: map['title'] ?? '',
       relatedBillId: map['relatedBillId'],
     );
