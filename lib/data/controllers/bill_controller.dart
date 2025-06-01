@@ -1,5 +1,6 @@
-// lib/data/controllers/bill_controller.dart
+// lib/data/controllers/bill_controller.dart (Complete Implementation)
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mone/data/controllers/transaction_controller.dart';
 import 'package:mone/data/entities/bill_entity.dart';
 import 'package:mone/data/entities/transaction_entity.dart';
 import 'package:mone/data/enums/bill_status_enum.dart';
@@ -9,13 +10,21 @@ import 'package:mone/data/models/method_model.dart';
 import 'package:mone/data/models/participant_model.dart';
 import 'package:mone/data/providers/transaction_provider.dart';
 import 'package:mone/data/repositories/bill_repository.dart';
+import 'package:mone/data/repositories/transaction_repository.dart';
 import 'package:uuid/uuid.dart';
 
 class BillController extends StateNotifier<List<BillEntity>> {
   final BillRepository _billRepository;
+  final TransactionRepository _transactionRepository;
+  final TransactionController _transactionController;
   final Ref _ref;
 
-  BillController(this._billRepository, this._ref) : super([]);
+  BillController(
+    this._billRepository,
+    this._transactionRepository,
+    this._transactionController,
+    this._ref,
+  ) : super([]);
 
   void setBills(List<BillEntity> bills) {
     state = bills;
@@ -101,7 +110,9 @@ class BillController extends StateNotifier<List<BillEntity>> {
       amount: payerSplitAmount,
       method: MethodModel.parseMethodFromId('cash'), // Default method
       category: category,
-      description: 'Split bill - ${bill.title} (My share)',
+      title: 'Split bill - ${bill.title} (My share)',
+      relatedBillId: bill.id, // Link to bill for tracking
+      isEditableAndDeletable: false,
     );
 
     // Transaction 2: Amount paid for others (expense)
@@ -113,7 +124,9 @@ class BillController extends StateNotifier<List<BillEntity>> {
         amount: othersTotalAmount,
         method: MethodModel.parseMethodFromId('cash'), // Default method
         category: category,
-        description: 'Split bill - ${bill.title} (Paid for others)',
+        title: 'Split bill - ${bill.title} (Paid for others)',
+        relatedBillId: bill.id, // Link to bill for tracking
+        isEditableAndDeletable: false,
       );
 
       // Create both transactions
@@ -202,7 +215,9 @@ class BillController extends StateNotifier<List<BillEntity>> {
       amount: participant.splitAmount,
       method: MethodModel.parseMethodFromId('cash'), // Default method
       category: bill.category,
-      description: 'Split bill payment - ${bill.title}',
+      title: 'Split bill payment - ${bill.title}',
+      relatedBillId: bill.id, // Link to bill for tracking
+      isEditableAndDeletable: false,
     );
 
     // Create income transaction for the payer
@@ -213,7 +228,9 @@ class BillController extends StateNotifier<List<BillEntity>> {
       amount: participant.splitAmount,
       method: MethodModel.parseMethodFromId('cash'), // Default method
       category: bill.category,
-      description: 'Split bill received - ${bill.title} (from ${participant.name})',
+      title: 'Split bill received - ${bill.title} (from ${participant.name})',
+      relatedBillId: bill.id, // Link to bill for tracking
+      isEditableAndDeletable: false,
     );
 
     // Create both transactions
@@ -226,7 +243,7 @@ class BillController extends StateNotifier<List<BillEntity>> {
         .createTransaction(payerId, payerIncomeTransaction);
   }
 
-  // Delete a bill (only by creator/payer)
+  // Delete a bill (only by creator/payer with settlement validation)
   Future<void> deleteBill(String billId, String currentUserId) async {
     try {
       final bill = state.firstWhere((b) => b.id == billId);
@@ -235,6 +252,26 @@ class BillController extends StateNotifier<List<BillEntity>> {
       if (bill.payerId != currentUserId) {
         throw Exception('Only the bill creator can delete this bill');
       }
+
+      // Check settlement status of other participants (excluding payer)
+      final otherParticipants =
+          bill.participants.where((p) => p.userId != currentUserId).toList();
+      final hasSettledParticipants = otherParticipants.any((p) => p.isSettled);
+
+      // If any other participant has settled, prevent deletion
+      if (hasSettledParticipants) {
+        final settledNames = otherParticipants
+            .where((p) => p.isSettled)
+            .map((p) => p.name)
+            .join(', ');
+        throw Exception(
+          'Cannot delete bill: ${settledNames} ${settledNames.contains(',') ? 'have' : 'has'} already settled. Contact them to resolve this bill.',
+        );
+      }
+
+      // Bill can be deleted - no other participants have settled yet
+      // Delete the payer's related transactions first
+      await _deletePayerBillTransactions(billId, currentUserId);
 
       // Get all participant IDs
       final participantIds = bill.participants.map((p) => p.userId).toList();
@@ -249,6 +286,31 @@ class BillController extends StateNotifier<List<BillEntity>> {
       // Update local state
       state = state.where((b) => b.id != billId).toList();
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Delete payer's bill-related transactions
+  Future<void> _deletePayerBillTransactions(String billId, String payerId) async {
+    try {
+      // Get all transactions for the payer
+      final allTransactions = await _transactionRepository.fetchUserTransactions(payerId);
+
+      // Find transactions related to this bill
+      final relatedTransactions =
+          allTransactions.where((transaction) {
+            // Check if transaction has relatedBillId field and matches our bill
+            return transaction.relatedBillId == billId;
+          }).toList();
+
+      // Delete each related transaction using the transaction controller
+      // This automatically handles balance updates and local state management
+      for (final transaction in relatedTransactions) {
+        await _transactionController.deleteTransaction(payerId, transaction.id);
+      }
+    } catch (e) {
+      // Log error but don't prevent bill deletion
+      print('Error deleting payer transactions: $e');
       rethrow;
     }
   }
