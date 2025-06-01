@@ -1,13 +1,15 @@
 // lib/features/bill/create_split_bill_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mone/data/controllers/bill_controller.dart';
 import 'package:mone/data/entities/user_entity.dart';
 import 'package:mone/data/models/category_model.dart';
 import 'package:mone/data/models/participant_model.dart';
 import 'package:mone/data/providers/bill_provider.dart';
 import 'package:mone/data/providers/user_provider.dart';
+import 'package:mone/features/bill/widgets/bill_form.dart';
+import 'package:mone/features/bill/widgets/participant_selection.dart';
+import 'package:mone/features/bill/widgets/split_method.dart';
+import 'package:mone/data/controllers/bill_controller.dart';
 
 class CreateSplitBillScreen extends ConsumerStatefulWidget {
   const CreateSplitBillScreen({super.key});
@@ -38,9 +40,6 @@ class _CreateSplitBillScreenState extends ConsumerState<CreateSplitBillScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = ref.watch(userProvider);
-    final allUsersAsync = ref.watch(allUsersStreamProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Split Bill'),
@@ -61,405 +60,63 @@ class _CreateSplitBillScreenState extends ConsumerState<CreateSplitBillScreen> {
             ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Bill Title
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Bill Title *',
-                  hintText: 'e.g., Dinner at Restaurant',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a bill title';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Bill Form Section
+            BillForm(
+              formKey: _formKey,
+              titleController: _titleController,
+              descriptionController: _descriptionController,
+              amountController: _amountController,
+              selectedCategory: _selectedCategory,
+              onCategoryChanged: (category) {
+                setState(() {
+                  _selectedCategory = category;
+                });
+              },
+              onAmountChanged: _recalculateSplit,
+            ),
+            const SizedBox(height: 24),
 
-              // Bill Description
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (Optional)',
-                  hintText: 'Add more details about the bill',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 16),
+            // Participant Selection Section
+            ParticipantSelection(
+              selectedFriends: _selectedFriends,
+              participants: _participants,
+              isEvenSplit: _isEvenSplit,
+              onSelectedFriendsChanged: (friends) {
+                setState(() {
+                  _selectedFriends = friends;
+                });
+                _recalculateSplit();
+              },
+              onParticipantAmountChanged: _updateParticipantAmount,
+            ),
 
-              // Total Amount
-              TextFormField(
-                controller: _amountController,
-                decoration: const InputDecoration(
-                  labelText: 'Total Amount *',
-                  hintText: '0.00',
-                  border: OutlineInputBorder(),
-                  prefixText: '\$ ',
-                ),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                ],
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter the total amount';
-                  }
-                  final amount = double.tryParse(value);
-                  if (amount == null || amount <= 0) {
-                    return 'Please enter a valid amount';
-                  }
-                  return null;
-                },
-                onChanged: (_) => _recalculateSplit(),
-              ),
+            // Split Method and Summary Section
+            if (_selectedFriends.isNotEmpty) ...[
               const SizedBox(height: 16),
-
-              // Category Selection
-              DropdownButtonFormField<CategoryModel>(
-                value: _selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Category *',
-                  border: OutlineInputBorder(),
-                ),
-                items:
-                    CategoryModel.getExpenseCategories().map((category) {
-                      return DropdownMenuItem(
-                        value: category,
-                        child: Row(
-                          children: [
-                            Icon(category.icon, size: 20),
-                            const SizedBox(width: 8),
-                            Text(category.name),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                onChanged: (category) {
+              SplitMethod(
+                isEvenSplit: _isEvenSplit,
+                onSplitMethodChanged: (isEven) {
                   setState(() {
-                    _selectedCategory = category;
+                    _isEvenSplit = isEven;
+                    if (isEven) {
+                      _recalculateSplit();
+                    }
                   });
                 },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select a category';
-                  }
-                  return null;
-                },
+                totalAmount: _getTotalAmount(),
+                splitTotal: _getSplitTotal(),
+                participantCount: _participants.length,
               ),
-              const SizedBox(height: 24),
-
-              // Add Participants Section
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Participants',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed:
-                        () => _showAddParticipantsDialog(allUsersAsync, currentUser),
-                    icon: const Icon(Icons.person_add),
-                    label: const Text('Add Friends'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Current User (always included)
-              Card(
-                child: ListTile(
-                  leading: CircleAvatar(
-                    child: Text(currentUser?.name.substring(0, 1).toUpperCase() ?? 'U'),
-                  ),
-                  title: Text(currentUser?.name ?? 'You'),
-                  subtitle: const Text('Bill Creator (You)'),
-                  trailing: Text(
-                    _participants.isNotEmpty
-                        ? '\$${_participants.first.splitAmount.toStringAsFixed(2)}'
-                        : '\$0.00',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-
-              // Selected Friends
-              ..._selectedFriends.map((friend) {
-                final participant = _participants.firstWhere(
-                  (p) => p.userId == friend.id,
-                  orElse:
-                      () => ParticipantModel(
-                        userId: friend.id,
-                        name: friend.name,
-                        splitAmount: 0.0,
-                        isSettled: false,
-                      ),
-                );
-
-                return Card(
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      child: Text(friend.name.substring(0, 1).toUpperCase()),
-                    ),
-                    title: Text(friend.name),
-                    subtitle: Text('@${friend.username}'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (!_isEvenSplit)
-                          SizedBox(
-                            width: 80,
-                            child: TextFormField(
-                              initialValue: participant.splitAmount.toString(),
-                              decoration: const InputDecoration(
-                                prefixText: '\$',
-                                isDense: true,
-                              ),
-                              keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\d*\.?\d{0,2}'),
-                                ),
-                              ],
-                              onChanged:
-                                  (value) => _updateParticipantAmount(friend.id, value),
-                            ),
-                          )
-                        else
-                          Text(
-                            '\$${participant.splitAmount.toStringAsFixed(2)}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        IconButton(
-                          onPressed: () => _removeParticipant(friend),
-                          icon: const Icon(
-                            Icons.remove_circle_outline,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-
-              if (_selectedFriends.isNotEmpty) ...[
-                const SizedBox(height: 16),
-
-                // Split Type Toggle
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Split Method',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: RadioListTile<bool>(
-                                title: const Text('Split Evenly'),
-                                value: true,
-                                groupValue: _isEvenSplit,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _isEvenSplit = value!;
-                                    _recalculateSplit();
-                                  });
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: RadioListTile<bool>(
-                                title: const Text('Custom Split'),
-                                value: false,
-                                groupValue: _isEvenSplit,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _isEvenSplit = value!;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Split Summary
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Split Summary',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        Text('Total Participants: ${_participants.length}'),
-                        Text('Total Amount: \$${_getTotalAmount().toStringAsFixed(2)}'),
-                        Text('Split Total: \$${_getSplitTotal().toStringAsFixed(2)}'),
-                        if (_getSplitTotal() != _getTotalAmount())
-                          Text(
-                            'Remaining: \$${(_getTotalAmount() - _getSplitTotal()).toStringAsFixed(2)}',
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
             ],
-          ),
+          ],
         ),
       ),
     );
-  }
-
-  void _showAddParticipantsDialog(
-    AsyncValue<List<UserEntity>> allUsersAsync,
-    UserEntity? currentUser,
-  ) {
-    allUsersAsync.when(
-      data: (allUsers) {
-        if (currentUser == null) return;
-
-        // Filter to only show friends who are not already selected
-        final friends =
-            allUsers
-                .where(
-                  (user) =>
-                      user.id != currentUser.id &&
-                      currentUser.friend.contains(user.id) &&
-                      !_selectedFriends.any(
-                        (selected) => selected.id == user.id,
-                      ), // Prevent duplicates
-                )
-                .toList();
-
-        // Create a local copy to manage checkbox states within the dialog
-        List<UserEntity> tempSelectedFriends = List.from(_selectedFriends);
-
-        showDialog(
-          context: context,
-          builder:
-              (context) => StatefulBuilder(
-                builder:
-                    (context, setDialogState) => AlertDialog(
-                      title: const Text('Add Friends'),
-                      content: SizedBox(
-                        width: double.maxFinite,
-                        height: 300,
-                        child:
-                            friends.isEmpty
-                                ? const Center(
-                                  child: Text(
-                                    'No more friends available.\nAll your friends are already added or add more friends first.',
-                                  ),
-                                )
-                                : ListView.builder(
-                                  itemCount: friends.length,
-                                  itemBuilder: (context, index) {
-                                    final friend = friends[index];
-                                    final isSelected = tempSelectedFriends.any(
-                                      (f) => f.id == friend.id,
-                                    );
-
-                                    return CheckboxListTile(
-                                      value: isSelected,
-                                      onChanged: (value) {
-                                        setDialogState(() {
-                                          if (value == true) {
-                                            if (!tempSelectedFriends.any(
-                                              (f) => f.id == friend.id,
-                                            )) {
-                                              tempSelectedFriends.add(friend);
-                                            }
-                                          } else {
-                                            tempSelectedFriends.removeWhere(
-                                              (f) => f.id == friend.id,
-                                            );
-                                          }
-                                        });
-                                      },
-                                      title: Text(friend.name),
-                                      subtitle: Text('@${friend.username}'),
-                                      secondary: CircleAvatar(
-                                        child: Text(
-                                          friend.name.substring(0, 1).toUpperCase(),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancel'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectedFriends = tempSelectedFriends;
-                            });
-                            _recalculateSplit();
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Add Selected'),
-                        ),
-                      ],
-                    ),
-              ),
-        );
-      },
-      loading:
-          () => showDialog(
-            context: context,
-            builder:
-                (context) => const AlertDialog(
-                  content: Row(
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(width: 16),
-                      Text('Loading friends...'),
-                    ],
-                  ),
-                ),
-          ),
-      error:
-          (error, _) => ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Error loading friends: $error'))),
-    );
-  }
-
-  void _removeParticipant(UserEntity friend) {
-    setState(() {
-      _selectedFriends.removeWhere((f) => f.id == friend.id);
-      _participants.removeWhere((p) => p.userId == friend.id);
-      _recalculateSplit();
-    });
   }
 
   void _updateParticipantAmount(String userId, String amountStr) {
@@ -468,6 +125,21 @@ class _CreateSplitBillScreenState extends ConsumerState<CreateSplitBillScreen> {
       final index = _participants.indexWhere((p) => p.userId == userId);
       if (index != -1) {
         _participants[index] = _participants[index].copyWith(splitAmount: amount);
+      } else {
+        // Handle case where current user isn't in participants yet
+        final currentUser = ref.read(userProvider);
+        if (currentUser != null && userId == currentUser.id) {
+          _participants.insert(
+            0,
+            ParticipantModel(
+              userId: currentUser.id,
+              name: currentUser.name,
+              profilePictureUrl: currentUser.profilePicture,
+              splitAmount: amount,
+              isSettled: true, // Payer is always "settled"
+            ),
+          );
+        }
       }
     });
   }
