@@ -1,4 +1,4 @@
-# mone
+# Mone
 
 Aplikasi ini adalah proyek Flutter yang dirancang sebagai titik awal untuk membangun aplikasi mobile dan web. Proyek ini mendemonstrasikan penggunaan Flutter untuk menciptakan aplikasi yang dapat berjalan di berbagai platform.
 
