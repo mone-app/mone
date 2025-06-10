@@ -61,15 +61,12 @@ class TransactionListSection extends ConsumerWidget {
               }
 
               // Group filtered transactions by date
-              final groupedTransactions = _groupTransactionsByDate(
-                filteredTransactions,
-              );
+              final groupedTransactions = _groupTransactionsByDate(filteredTransactions);
 
               return _buildTransactionList(context, groupedTransactions);
             },
             loading: () => _buildLoadingState(),
-            error:
-                (error, stack) => _buildErrorState(context, error.toString()),
+            error: (error, stack) => _buildErrorState(context, error.toString()),
           ),
         ],
       ),
@@ -85,8 +82,7 @@ class TransactionListSection extends ConsumerWidget {
 
     if (!chartState.showIncome && !chartState.showExpenses) {
       title = 'No transaction types selected';
-      subtitle =
-          'Enable income or expense visibility in the filter to see transactions';
+      subtitle = 'Enable income or expense visibility in the filter to see transactions';
     } else if (chartState.showIncome && !chartState.showExpenses) {
       title = 'No income transactions';
       subtitle = 'No income transactions found in the selected date range';
@@ -133,9 +129,7 @@ class TransactionListSection extends ConsumerWidget {
           ElevatedButton.icon(
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const TransactionFormScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const TransactionFormScreen()),
               );
             },
             icon: const Icon(Icons.add, size: 18),
@@ -143,9 +137,7 @@ class TransactionListSection extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: colorScheme.primary,
               foregroundColor: colorScheme.onPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
           ),
@@ -252,10 +244,7 @@ class TransactionListSection extends ConsumerWidget {
                     const SizedBox(height: 2),
                     Text(
                       DateFormat('yyyy').format(date),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ],
@@ -272,17 +261,12 @@ class TransactionListSection extends ConsumerWidget {
         ),
 
         // Transaction items for this date
-        ...transactions.map(
-          (transaction) => _buildTransactionItem(context, transaction),
-        ),
+        ...transactions.map((transaction) => _buildTransactionItem(context, transaction)),
       ],
     );
   }
 
-  Widget _buildTransactionItem(
-    BuildContext context,
-    TransactionEntity transaction,
-  ) {
+  Widget _buildTransactionItem(BuildContext context, TransactionEntity transaction) {
     final colorScheme = Theme.of(context).colorScheme;
     final isIncome = transaction.type == TransactionTypeEnum.income;
     final amountColor = isIncome ? Colors.green.shade600 : Colors.red.shade600;
@@ -294,8 +278,7 @@ class TransactionListSection extends ConsumerWidget {
           // Navigate to edit transaction
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder:
-                  (context) => TransactionFormScreen(transaction: transaction),
+              builder: (context) => TransactionFormScreen(transaction: transaction),
             ),
           );
         },
@@ -331,7 +314,7 @@ class TransactionListSection extends ConsumerWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                transaction.category.name,
+                                transaction.title,
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
@@ -430,9 +413,7 @@ class TransactionListSection extends ConsumerWidget {
 
   bool _isToday(DateTime date) {
     final now = DateTime.now();
-    return date.year == now.year &&
-        date.month == now.month &&
-        date.day == now.day;
+    return date.year == now.year && date.month == now.month && date.day == now.day;
   }
 
   bool _isYesterday(DateTime date) {

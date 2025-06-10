@@ -12,6 +12,9 @@ class TransactionEntity {
   final MethodModel method;
   final CategoryModel category;
   final String? description;
+  final String title;
+  final bool isEditableAndDeletable;
+  final String? relatedBillId;
 
   TransactionEntity({
     required this.id,
@@ -20,7 +23,10 @@ class TransactionEntity {
     required this.amount,
     required this.method,
     required this.category,
+    required this.title,
+    this.isEditableAndDeletable = true,
     this.description,
+    this.relatedBillId,
   });
 
   // Convert TransactionEntity to Map for Firebase
@@ -32,6 +38,9 @@ class TransactionEntity {
       'amount': amount,
       'method': method.id,
       'category': category.id,
+      'title': title,
+      'isEditableAndDeletable': isEditableAndDeletable,
+      'relatedBillId': relatedBillId,
       'description': description,
     };
   }
@@ -49,6 +58,9 @@ class TransactionEntity {
       method: MethodModel.parseMethodFromId(map['method'] ?? ''),
       category: CategoryModel.parseCategoryFromId(map['category'] ?? ''),
       description: map['description'],
+      isEditableAndDeletable: map['isEditableAndDeletable'] ?? true,
+      title: map['title'] ?? '',
+      relatedBillId: map['relatedBillId'],
     );
   }
 
@@ -61,6 +73,9 @@ class TransactionEntity {
     MethodModel? method,
     CategoryModel? category,
     String? description,
+    bool? isEditableAndDeletable,
+    String? title,
+    String? relatedBillId,
   }) {
     return TransactionEntity(
       id: id ?? this.id,
@@ -70,13 +85,16 @@ class TransactionEntity {
       method: method ?? this.method,
       category: category ?? this.category,
       description: description ?? this.description,
+      isEditableAndDeletable: isEditableAndDeletable ?? this.isEditableAndDeletable,
+      title: title ?? this.title,
+      relatedBillId: relatedBillId ?? this.relatedBillId,
     );
   }
 
   // Override toString for debugging
   @override
   String toString() {
-    return 'TransactionEntity(id: $id, type: $type, date: $date, amount: $amount, method: $method, category: $category, description: $description)';
+    return 'TransactionEntity(id: $id, type: $type, date: $date, amount: $amount, method: $method, category: $category, description: $description, isEditableAndDeletable: $isEditableAndDeletable, title: $title, relatedBillId: $relatedBillId)';
   }
 
   // Override equality operators
@@ -90,7 +108,10 @@ class TransactionEntity {
         other.amount == amount &&
         other.method == method &&
         other.category == category &&
-        other.description == description;
+        other.description == description &&
+        other.isEditableAndDeletable == isEditableAndDeletable &&
+        other.relatedBillId == relatedBillId &&
+        other.title == title;
   }
 
   @override
@@ -101,7 +122,10 @@ class TransactionEntity {
         amount.hashCode ^
         method.hashCode ^
         category.hashCode ^
-        description.hashCode;
+        description.hashCode ^
+        isEditableAndDeletable.hashCode ^
+        relatedBillId.hashCode ^
+        title.hashCode;
   }
 
   /// Check if this is an income transaction
