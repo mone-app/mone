@@ -27,7 +27,7 @@ class NotificationApi {
         Uri.parse('$_baseUrl/notification'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'targetUserId': fromUserId,
+          'targetUserId': targetUserId,
           'type': type,
           'connectionId': 'connectionId',
           'fromUserId': fromUserId,

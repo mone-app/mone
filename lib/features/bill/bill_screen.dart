@@ -125,7 +125,7 @@ class _BillScreenState extends ConsumerState<BillScreen>
           if (bill.payerId == currentUserId) return false;
           final participant =
               bill.participants.where((p) => p.userId == currentUserId).firstOrNull;
-          return participant != null && !participant.isSettled;
+          return participant != null;
         }).toList();
 
     if (oweBills.isEmpty) {
@@ -149,7 +149,7 @@ class _BillScreenState extends ConsumerState<BillScreen>
     final owedBills =
         bills.where((bill) {
           if (bill.payerId != currentUserId) return false;
-          return bill.participants.any((p) => !p.isSettled && p.userId != currentUserId);
+          return bill.participants.any((p) => p.userId != currentUserId);
         }).toList();
 
     if (owedBills.isEmpty) {
