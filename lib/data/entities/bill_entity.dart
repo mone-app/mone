@@ -202,6 +202,14 @@ class BillEntity {
   }
 
   String get formattedAmount {
-    return CurrencyFormatter.formatToRupiah(amount);
+    return CurrencyFormatter.formatToRupiahWithDecimal(amount);
+  }
+
+  String get formattedUnsettledAmount {
+    return CurrencyFormatter.formatToRupiahWithDecimal(totalUnsettledAmount);
+  }
+
+  String get formattedSettledAmount {
+    return CurrencyFormatter.formatToRupiahWithDecimal(totalSettledAmount);
   }
 }

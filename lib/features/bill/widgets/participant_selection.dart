@@ -89,8 +89,8 @@ class ParticipantSelection extends ConsumerWidget {
             else
               Text(
                 participants.isNotEmpty
-                    ? '\$${participants.first.splitAmount.toStringAsFixed(2)}'
-                    : '\$0.00',
+                    ? participants.first.formattedSplitAmount
+                    : 'Rp0,00',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             Container(
@@ -150,7 +150,7 @@ class ParticipantSelection extends ConsumerWidget {
               )
             else
               Text(
-                '\$${participant.splitAmount.toStringAsFixed(2)}',
+                participant.formattedSplitAmount,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             IconButton(

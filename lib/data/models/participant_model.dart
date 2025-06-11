@@ -108,6 +108,6 @@ class ParticipantModel {
   }
 
   String get formattedSplitAmount {
-    return CurrencyFormatter.formatToRupiah(splitAmount);
+    return CurrencyFormatter.formatToRupiahWithDecimal(splitAmount);
   }
 }

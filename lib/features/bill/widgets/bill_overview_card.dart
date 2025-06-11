@@ -61,7 +61,7 @@ class BillOverviewCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildInfoColumn('Total Amount', '\$${bill.amount.toStringAsFixed(2)}'),
+                _buildInfoColumn('Total Amount', bill.formattedAmount),
                 _buildInfoColumn('Date', _formatDate(bill.date)),
                 _buildInfoColumn('Participants', '${bill.participantCount}'),
               ],

@@ -35,11 +35,11 @@ class SettlementProgressCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Settled: \$${bill.totalSettledAmount.toStringAsFixed(2)}',
+                  'Settled: ${bill.formattedSettledAmount}',
                   style: TextStyle(color: Colors.green[700]),
                 ),
                 Text(
-                  'Remaining: \$${bill.totalUnsettledAmount.toStringAsFixed(2)}',
+                  'Remaining: ${bill.formattedUnsettledAmount}',
                   style: TextStyle(color: Colors.orange[700]),
                 ),
               ],

@@ -7,6 +7,7 @@ import 'package:mone/data/providers/bill_provider.dart';
 import 'package:mone/data/providers/user_provider.dart';
 import 'package:mone/features/bill/create_split_bill_screen.dart';
 import 'package:mone/features/bill/bill_detail_screen.dart';
+import 'package:mone/utils/currency_formatter.dart';
 
 class BillScreen extends ConsumerStatefulWidget {
   const BillScreen({super.key});
@@ -283,7 +284,7 @@ class _BillScreenState extends ConsumerState<BillScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Total: \$${bill.amount.toStringAsFixed(2)}',
+                        'Total: ${bill.formattedAmount}',
                         style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                       Text(
@@ -301,7 +302,7 @@ class _BillScreenState extends ConsumerState<BillScreen>
                           style: TextStyle(color: Colors.grey[600], fontSize: 12),
                         ),
                         Text(
-                          '\$${owedAmount.toStringAsFixed(2)}',
+                          CurrencyFormatter.formatToRupiahWithDecimal(owedAmount),
                           style: const TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
@@ -319,7 +320,7 @@ class _BillScreenState extends ConsumerState<BillScreen>
                           style: TextStyle(color: Colors.grey[600], fontSize: 12),
                         ),
                         Text(
-                          '\$${owedToMeAmount.toStringAsFixed(2)}',
+                          CurrencyFormatter.formatToRupiahWithDecimal(owedToMeAmount),
                           style: const TextStyle(
                             color: Colors.green,
                             fontWeight: FontWeight.bold,
@@ -337,7 +338,7 @@ class _BillScreenState extends ConsumerState<BillScreen>
                           style: TextStyle(color: Colors.grey[600], fontSize: 12),
                         ),
                         Text(
-                          '\$${(participant?.splitAmount ?? 0.0).toStringAsFixed(2)}',
+                          (participant?.formattedSplitAmount ?? 'Rp0,00'),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,

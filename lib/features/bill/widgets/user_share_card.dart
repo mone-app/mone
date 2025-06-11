@@ -36,7 +36,7 @@ class UserShareCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '\$${currentUserParticipant.splitAmount.toStringAsFixed(2)}',
+              currentUserParticipant.formattedSplitAmount,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
