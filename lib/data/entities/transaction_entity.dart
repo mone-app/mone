@@ -139,6 +139,6 @@ class TransactionEntity {
   double get signedAmount => isIncome ? amount : -amount;
 
   String get formattedAmount {
-    return CurrencyFormatter.formatToRupiah(amount);
+    return CurrencyFormatter.formatToRupiahWithDecimal(amount);
   }
 }

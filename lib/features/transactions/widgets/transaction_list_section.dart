@@ -322,7 +322,7 @@ class TransactionListSection extends ConsumerWidget {
                               ),
                             ),
                             Text(
-                              '$amountPrefix\$${transaction.amount.toStringAsFixed(2)}',
+                              '$amountPrefix${transaction.formattedAmount}',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,

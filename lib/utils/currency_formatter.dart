@@ -3,7 +3,7 @@ class CurrencyFormatter {
   /// Formats amount to Indonesian Rupiah currency format
   /// Example: 1500000 -> "Rp 1.500.000"
   static String formatToRupiah(double amount) {
-    return 'Rp ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+    return 'Rp${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
   }
 
   /// Formats amount to Rupiah with decimal places
@@ -17,23 +17,34 @@ class CurrencyFormatter {
       (Match m) => '${m[1]}.',
     );
 
-    if (decimalPart > 0) {
-      return 'Rp $formattedWhole,${decimalPart.toString().padLeft(2, '0')}';
+    if (decimalPart >= 0) {
+      return 'Rp$formattedWhole,${decimalPart.toString().padLeft(2, '0')}';
     }
-    return 'Rp $formattedWhole';
+    return 'Rp$formattedWhole';
   }
 
   /// Formats amount to compact Rupiah format
-  /// Example: 1500000 -> "Rp 1.5M", 1500 -> "Rp 1.5K"
+  /// Example: 1500000 -> "Rp 1.5M", 2000000 -> "Rp 2M", 1500 -> "Rp 1.5K", 320000 -> "Rp 320K"
   static String formatToCompactRupiah(double amount) {
     if (amount >= 1000000000) {
-      return 'Rp ${(amount / 1000000000).toStringAsFixed(1)}B';
+      final value = amount / 1000000000;
+      return 'Rp ${_removeTrailingZero(value.toStringAsFixed(1))}B';
     } else if (amount >= 1000000) {
-      return 'Rp ${(amount / 1000000).toStringAsFixed(1)}M';
+      final value = amount / 1000000;
+      return 'Rp ${_removeTrailingZero(value.toStringAsFixed(1))}M';
     } else if (amount >= 1000) {
-      return 'Rp ${(amount / 1000).toStringAsFixed(1)}K';
+      final value = amount / 1000;
+      return 'Rp ${_removeTrailingZero(value.toStringAsFixed(1))}K';
     }
     return formatToRupiah(amount);
+  }
+
+  /// Helper method to remove trailing .0 from formatted numbers
+  static String _removeTrailingZero(String value) {
+    if (value.endsWith('.0')) {
+      return value.substring(0, value.length - 2);
+    }
+    return value;
   }
 
   /// Formats amount with sign for transaction display

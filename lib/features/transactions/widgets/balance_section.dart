@@ -88,10 +88,10 @@ class BalanceSection extends ConsumerWidget {
                     children: [
                       Text(
                         chartState.showIncome && !chartState.showExpenses
-                            ? CurrencyFormatter.formatToRupiah(totalIncome)
+                            ? CurrencyFormatter.formatToRupiahWithDecimal(totalIncome)
                             : chartState.showExpenses && !chartState.showIncome
-                            ? CurrencyFormatter.formatToRupiah(totalExpenses)
-                            : CurrencyFormatter.formatToRupiah(combinedTotal),
+                            ? CurrencyFormatter.formatToRupiahWithDecimal(totalExpenses)
+                            : CurrencyFormatter.formatToRupiahWithDecimal(combinedTotal),
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 2),
