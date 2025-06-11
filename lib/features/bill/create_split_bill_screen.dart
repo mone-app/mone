@@ -224,8 +224,9 @@ class _CreateSplitBillScreenState extends ConsumerState<CreateSplitBillScreen> {
     if (!_isEvenSplit) {
       final splitTotal = _getSplitTotal();
       final totalAmount = _getTotalAmount();
-      if ((splitTotal - totalAmount).abs() > 0.01)
+      if ((splitTotal - totalAmount).abs() > 0.01) {
         return false; // Allow small rounding differences
+      }
     }
 
     return true;
