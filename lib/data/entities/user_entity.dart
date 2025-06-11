@@ -110,6 +110,6 @@ class UserEntity {
   bool get hasNotificationToken => fcmToken != null && fcmToken!.isNotEmpty;
 
   String get formattedBalance {
-    return CurrencyFormatter.formatToRupiah(balance);
+    return CurrencyFormatter.formatToRupiahWithDecimal(balance);
   }
 }
