@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mone/data/enums/bill_status_enum.dart';
 import 'package:mone/data/models/category_model.dart';
 import 'package:mone/data/models/participant_model.dart';
+import 'package:mone/utils/currency_formatter.dart';
 
 class BillEntity {
   final String id;
@@ -198,5 +199,9 @@ class BillEntity {
     } catch (e) {
       return null;
     }
+  }
+
+  String get formattedAmount {
+    return CurrencyFormatter.formatToRupiah(amount);
   }
 }
