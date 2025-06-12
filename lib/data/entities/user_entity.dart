@@ -1,5 +1,7 @@
 // lib/data/entities/user_entity.dart
 
+import 'package:mone/utils/currency_formatter.dart';
+
 class UserEntity {
   final String id;
   final String name;
@@ -38,11 +40,8 @@ class UserEntity {
       bill: List<String>.from(map['bill'] ?? []),
       friend: List<String>.from(map['friend'] ?? []),
       createdAt:
-          map['createdAt'] != null
-              ? DateTime.parse(map['createdAt'])
-              : DateTime.now(),
-      updatedAt:
-          map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : null,
+          map['createdAt'] != null ? DateTime.parse(map['createdAt']) : DateTime.now(),
+      updatedAt: map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : null,
       fcmToken: map['fcmToken'],
     );
   }
@@ -109,4 +108,8 @@ class UserEntity {
 
   /// Check if user has FCM token for notifications
   bool get hasNotificationToken => fcmToken != null && fcmToken!.isNotEmpty;
+
+  String get formattedBalance {
+    return CurrencyFormatter.formatToRupiahWithDecimal(balance);
+  }
 }

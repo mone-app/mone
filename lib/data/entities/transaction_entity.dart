@@ -3,6 +3,7 @@
 import 'package:mone/data/enums/transaction_type_enum.dart';
 import 'package:mone/data/models/category_model.dart';
 import 'package:mone/data/models/method_model.dart';
+import 'package:mone/utils/currency_formatter.dart';
 
 class TransactionEntity {
   final String id;
@@ -136,4 +137,8 @@ class TransactionEntity {
 
   /// Get the formatted amount with proper sign
   double get signedAmount => isIncome ? amount : -amount;
+
+  String get formattedAmount {
+    return CurrencyFormatter.formatToRupiahWithDecimal(amount);
+  }
 }

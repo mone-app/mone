@@ -33,7 +33,7 @@ class PayerSummaryCard extends StatelessWidget {
                   children: [
                     Text('You paid', style: TextStyle(color: Colors.grey[600])),
                     Text(
-                      '\$${bill.amount.toStringAsFixed(2)}',
+                      bill.formattedAmount,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -47,7 +47,7 @@ class PayerSummaryCard extends StatelessWidget {
                   children: [
                     Text('Still owed', style: TextStyle(color: Colors.grey[600])),
                     Text(
-                      '\$${bill.totalUnsettledAmount.toStringAsFixed(2)}',
+                      bill.formattedUnsettledAmount,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

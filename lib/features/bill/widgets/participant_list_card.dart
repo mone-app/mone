@@ -93,7 +93,7 @@ class _ParticipantTile extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  '\$${participant.splitAmount.toStringAsFixed(2)}',
+                  participant.formattedSplitAmount,
                   style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
               ],

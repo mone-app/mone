@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mone/data/enums/transaction_type_enum.dart';
 import 'package:mone/data/models/chart_model.dart';
 import 'package:mone/data/providers/transaction_provider.dart';
+import 'package:mone/utils/currency_formatter.dart';
 
 class CategoryPieChart extends ConsumerStatefulWidget {
   final String userId;
@@ -29,10 +30,7 @@ class _CategoryPieChartState extends ConsumerState<CategoryPieChart> {
         padding: const EdgeInsets.all(20),
         margin: const EdgeInsets.all(16),
         child: const Center(
-          child: Padding(
-            padding: EdgeInsets.all(32),
-            child: CircularProgressIndicator(),
-          ),
+          child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()),
         ),
       );
     }
@@ -98,8 +96,7 @@ class _CategoryPieChartState extends ConsumerState<CategoryPieChart> {
 
       child: Column(
         children: [
-          if (displayData.isEmpty ||
-              (!chartState.showIncome && !chartState.showExpenses))
+          if (displayData.isEmpty || (!chartState.showIncome && !chartState.showExpenses))
             _buildEmptyState(context)
           else
             _buildChartContent(
@@ -122,11 +119,7 @@ class _CategoryPieChartState extends ConsumerState<CategoryPieChart> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.pie_chart_outline,
-              size: 48,
-              color: Colors.grey.shade400,
-            ),
+            Icon(Icons.pie_chart_outline, size: 48, color: Colors.grey.shade400),
             const SizedBox(height: 12),
             Text(
               'No data available',
@@ -162,8 +155,7 @@ class _CategoryPieChartState extends ConsumerState<CategoryPieChart> {
                       touchedIndex = -1;
                       return;
                     }
-                    touchedIndex =
-                        pieTouchResponse.touchedSection!.touchedSectionIndex;
+                    touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
                   });
                 },
               ),
@@ -262,11 +254,7 @@ class _CategoryPieChartState extends ConsumerState<CategoryPieChart> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Icon(
-                    categoryData.category.icon,
-                    size: 18,
-                    color: Colors.grey.shade600,
-                  ),
+                  Icon(categoryData.category.icon, size: 18, color: Colors.grey.shade600),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Row(
@@ -287,23 +275,19 @@ class _CategoryPieChartState extends ConsumerState<CategoryPieChart> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: (categoryData.type ==
-                                          TransactionTypeEnum.income
+                              color: (categoryData.type == TransactionTypeEnum.income
                                       ? Colors.green
                                       : Colors.red)
                                   .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              categoryData.type == TransactionTypeEnum.income
-                                  ? 'I'
-                                  : 'E',
+                              categoryData.type == TransactionTypeEnum.income ? 'I' : 'E',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 color:
-                                    categoryData.type ==
-                                            TransactionTypeEnum.income
+                                    categoryData.type == TransactionTypeEnum.income
                                         ? Colors.green.shade700
                                         : Colors.red.shade700,
                               ),
@@ -313,7 +297,7 @@ class _CategoryPieChartState extends ConsumerState<CategoryPieChart> {
                     ),
                   ),
                   Text(
-                    categoryData.amount.toStringAsFixed(2),
+                    CurrencyFormatter.formatToCompactRupiah(categoryData.amount),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

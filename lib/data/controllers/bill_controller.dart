@@ -265,7 +265,7 @@ class BillController extends StateNotifier<List<BillEntity>> {
             .map((p) => p.name)
             .join(', ');
         throw Exception(
-          'Cannot delete bill: ${settledNames} ${settledNames.contains(',') ? 'have' : 'has'} already settled. Contact them to resolve this bill.',
+          'Cannot delete bill: $settledNames ${settledNames.contains(',') ? 'have' : 'has'} already settled. Contact them to resolve this bill.',
         );
       }
 
@@ -310,7 +310,6 @@ class BillController extends StateNotifier<List<BillEntity>> {
       }
     } catch (e) {
       // Log error but don't prevent bill deletion
-      print('Error deleting payer transactions: $e');
       rethrow;
     }
   }

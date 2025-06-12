@@ -1,5 +1,6 @@
 // lib/features/bill/widgets/split_method_widget.dart
 import 'package:flutter/material.dart';
+import 'package:mone/utils/currency_formatter.dart';
 
 class SplitMethod extends StatelessWidget {
   final bool isEvenSplit;
@@ -92,12 +93,18 @@ class SplitMethod extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 _buildSummaryRow('Total Participants', '$participantCount'),
-                _buildSummaryRow('Total Amount', '\$${totalAmount.toStringAsFixed(2)}'),
-                _buildSummaryRow('Split Total', '\$${splitTotal.toStringAsFixed(2)}'),
+                _buildSummaryRow(
+                  'Total Amount',
+                  CurrencyFormatter.formatToRupiahWithDecimal(totalAmount),
+                ),
+                _buildSummaryRow(
+                  'Split Total',
+                  CurrencyFormatter.formatToRupiahWithDecimal(splitTotal),
+                ),
                 if (splitTotal != totalAmount)
                   _buildSummaryRow(
                     'Remaining',
-                    '\$${(totalAmount - splitTotal).toStringAsFixed(2)}',
+                    CurrencyFormatter.formatToRupiahWithDecimal(totalAmount - splitTotal),
                     isError: true,
                   ),
                 if (splitTotal == totalAmount && participantCount > 0)

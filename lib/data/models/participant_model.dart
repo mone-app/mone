@@ -1,5 +1,7 @@
 // lib/data/models/participant_model.dart
 
+import 'package:mone/utils/currency_formatter.dart';
+
 class ParticipantModel {
   final String userId;
   final String name;
@@ -103,5 +105,9 @@ class ParticipantModel {
         note.hashCode ^
         paymentImageUrl.hashCode ^
         isSettled.hashCode;
+  }
+
+  String get formattedSplitAmount {
+    return CurrencyFormatter.formatToRupiahWithDecimal(splitAmount);
   }
 }
