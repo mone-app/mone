@@ -16,7 +16,7 @@ class NotificationTypeHandler {
   }) async {
     await NotificationTypes.createBasicNotification(
       id: _generateNotificationId(connectionId ?? ''),
-      title: title ?? "Someone has added you as a friend",
+      title: "Someone has added you as a friend",
       body:
           body ??
           (username != null
@@ -24,7 +24,54 @@ class NotificationTypeHandler {
               : "someone added you as a friend"),
       payload: {
         'type': 'added_friend',
-        'connectionId': connectionId ?? '',
+        'userId': userId ?? '',
+        'screen': RouteEnum.searchFriend,
+      },
+      channelKey: 'social_channel',
+    );
+  }
+
+  @pragma('vm:entry-point')
+  static Future<void> newBill({
+    String? userId,
+    String? username,
+    String? title,
+    String? body,
+  }) async {
+    await NotificationTypes.createBasicNotification(
+      id: _generateNotificationId(''),
+      title: title ?? "New bill Added",
+      body:
+          body ??
+          (username != null
+              ? "@$username added you to a new bill"
+              : "someone added you to a new bill"),
+      payload: {
+        'type': 'bill_created',
+        'userId': userId ?? '',
+        'screen': RouteEnum.searchFriend,
+      },
+      channelKey: 'social_channel',
+    );
+  }
+
+  @pragma('vm:entry-point')
+  static Future<void> settledBill({
+    String? userId,
+    String? username,
+    String? title,
+    String? body,
+  }) async {
+    await NotificationTypes.createBasicNotification(
+      id: _generateNotificationId(''),
+      title: title ?? "Bill Settled",
+      body:
+          body ??
+          (username != null
+              ? "@$username settled a bill with you"
+              : "someone settled a bill with you"),
+      payload: {
+        'type': 'bill_settled',
         'userId': userId ?? '',
         'screen': RouteEnum.searchFriend,
       },
