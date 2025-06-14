@@ -2,7 +2,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mone/core/themes/app_color.dart';
+import 'package:mone/core/theme/app_color.dart';
 import 'package:mone/data/entities/user_entity.dart';
 import 'package:mone/data/providers/user_provider.dart';
 import 'package:mone/features/auth/utils/auth_validator.dart';
