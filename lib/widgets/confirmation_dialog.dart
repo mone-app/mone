@@ -1,7 +1,7 @@
 // lib/features/profile/widgets/settings_dialog.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:mone/core/themes/app_color.dart';
+import 'package:mone/core/theme/app_color.dart';
 
 class ConfirmationDialog extends StatelessWidget {
   final String title;

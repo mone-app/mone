@@ -3,8 +3,8 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:mone/core/services/navigation/navigation_service.dart';
-import 'package:mone/core/services/notification/notification_handler.dart';
+import 'package:mone/core/navigation/navigation_service.dart';
+import 'package:mone/core/notification/notification_handler.dart';
 import 'package:mone/data/enums/route_enum.dart';
 
 @pragma('vm:entry-point')

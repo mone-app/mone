@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
-import 'package:mone/core/themes/app_color.dart';
+import 'package:mone/core/theme/app_color.dart';
 import 'package:mone/data/entities/transaction_entity.dart';
 import 'package:mone/data/enums/transaction_type_enum.dart';
 import 'package:mone/data/models/category_model.dart';
@@ -20,7 +20,8 @@ class TransactionFormScreen extends ConsumerStatefulWidget {
   const TransactionFormScreen({super.key, this.transaction});
 
   @override
-  ConsumerState<TransactionFormScreen> createState() => _TransactionFormScreenState();
+  ConsumerState<TransactionFormScreen> createState() =>
+      _TransactionFormScreenState();
 }
 
 class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
@@ -83,7 +84,8 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
         // Reset category when type changes
         if (type == TransactionTypeEnum.income) {
           final incomeCategories = CategoryModel.getIncomeCategories();
-          _selectedCategory = incomeCategories.isNotEmpty ? incomeCategories.first : null;
+          _selectedCategory =
+              incomeCategories.isNotEmpty ? incomeCategories.first : null;
         } else {
           final expenseCategories = CategoryModel.getExpenseCategories();
           _selectedCategory =
@@ -102,9 +104,9 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(
-              context,
-            ).colorScheme.copyWith(primary: Theme.of(context).colorScheme.primary),
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: Theme.of(context).colorScheme.primary,
+            ),
           ),
           child: child!,
         );
@@ -124,9 +126,9 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(
-              context,
-            ).colorScheme.copyWith(primary: Theme.of(context).colorScheme.primary),
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: Theme.of(context).colorScheme.primary,
+            ),
           ),
           child: child!,
         );
@@ -215,7 +217,9 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
           content: Text(message),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     }
@@ -228,7 +232,9 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
           content: Text(message),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     }
@@ -337,7 +343,10 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.containerSurface(context),
                       borderRadius: BorderRadius.circular(15),
-                      border: _isBordered ? Border.all(color: colorScheme.primary) : null,
+                      border:
+                          _isBordered
+                              ? Border.all(color: colorScheme.primary)
+                              : null,
                     ),
                     child: Row(
                       children: [
@@ -372,7 +381,9 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                     labelText: 'Amount',
                     hintText: 'Enter amount',
                     prefixIcon: Icons.attach_money,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter an amount';
@@ -513,7 +524,10 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
             Icon(
               icon,
               size: 18,
-              color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+              color:
+                  isSelected
+                      ? colorScheme.onPrimary
+                      : colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 8),
             Text(
@@ -521,7 +535,10 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                color:
+                    isSelected
+                        ? colorScheme.onPrimary
+                        : colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -559,7 +576,9 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
               _isBordered
                   ? OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   )
                   : InputBorder.none,
           focusedBorder:

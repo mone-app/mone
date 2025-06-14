@@ -1,7 +1,7 @@
 // lib/features/transactions/widgets/balance_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mone/core/themes/app_color.dart';
+import 'package:mone/core/theme/app_color.dart';
 import 'package:mone/data/providers/transaction_provider.dart';
 import 'package:mone/features/transactions/widgets/date_range_filter.dart';
 import 'package:mone/utils/currency_formatter.dart';
@@ -73,7 +73,10 @@ class BalanceSection extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Text(
                         'Loading...',
-                        style: TextStyle(fontSize: 16, color: Colors.grey.shade500),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   )
@@ -88,11 +91,20 @@ class BalanceSection extends ConsumerWidget {
                     children: [
                       Text(
                         chartState.showIncome && !chartState.showExpenses
-                            ? CurrencyFormatter.formatToRupiahWithDecimal(totalIncome)
+                            ? CurrencyFormatter.formatToRupiahWithDecimal(
+                              totalIncome,
+                            )
                             : chartState.showExpenses && !chartState.showIncome
-                            ? CurrencyFormatter.formatToRupiahWithDecimal(totalExpenses)
-                            : CurrencyFormatter.formatToRupiahWithDecimal(combinedTotal),
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                            ? CurrencyFormatter.formatToRupiahWithDecimal(
+                              totalExpenses,
+                            )
+                            : CurrencyFormatter.formatToRupiahWithDecimal(
+                              combinedTotal,
+                            ),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 2),
                     ],

@@ -1,6 +1,6 @@
 // lib/data/services/notification/notification_handler.dart
 
-import 'package:mone/core/services/notification/notification_type.dart';
+import 'package:mone/core/notification/notification_type.dart';
 import 'package:mone/data/enums/route_enum.dart';
 
 @pragma('vm:entry-point')
