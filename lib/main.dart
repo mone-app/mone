@@ -6,6 +6,7 @@ import 'package:mone/core/navigation/navigation_service.dart';
 import 'package:mone/core/notification/fcm_service.dart';
 import 'package:mone/core/notification/notification_service.dart';
 import 'package:mone/core/notification/notification_settings_service.dart';
+import 'package:mone/core/services/crashlytics_service.dart';
 import 'package:mone/core/theme/theme_service.dart';
 import 'package:mone/core/theme/app_theme.dart';
 import 'package:mone/data/enums/route_enum.dart';
@@ -19,7 +20,13 @@ late NotificationSettingsService notificationSettingsService;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize Crashlytics
+  await CrashlyticsService.instance.initialize();
+
+  // Initialize FCM service
   await NotificationService.initializeLocalNotifications(debug: true);
   await NotificationService.initializeRemoteNotifications(debug: true);
 
@@ -74,9 +81,7 @@ class _AppState extends ConsumerState<App> {
           stream: ref.read(authRepositoryProvider).auth.authStateChanges(),
           builder: (context, authSnapshot) {
             if (authSnapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
+              return const Scaffold(body: Center(child: CircularProgressIndicator()));
             }
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
