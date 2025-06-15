@@ -69,12 +69,12 @@ class BillController extends StateNotifier<List<BillEntity>> {
       // Create bill for all participants
       await _billRepository.createBillForParticipants(bill, participantIds);
 
-      for (String userId in participantIds) {
-        await _notificationApi.sendBillNotification(
+      await Future.wait(participantIds.map((userId) {
+        return _notificationApi.sendBillNotification(
           targetUserId: userId,
           fromUserId: bill.payerId,
         );
-      }
+      }));
 
       // Create transactions for the payer
       await _createPayerTransactions(
