@@ -1,59 +1,86 @@
-# mone
+# Mone - Share, Settle, and Stay Connected 💰
 
-Aplikasi ini adalah proyek Flutter yang dirancang sebagai titik awal untuk membangun aplikasi mobile dan web. Proyek ini mendemonstrasikan penggunaan Flutter untuk menciptakan aplikasi yang dapat berjalan di berbagai platform.
+A modern Flutter-based financial management app that helps users track personal transactions and split bills with friends seamlessly.
 
-## Fitur
+## 📱 About
 
-- Dukungan untuk berbagai platform: Android, iOS, Web, Windows, Linux, dan macOS.
-- Struktur proyek yang terorganisir dengan baik untuk memudahkan pengembangan.
-- Contoh penggunaan berbagai fitur Flutter.
+Mone is a comprehensive financial companion app designed to simplify money management and bill splitting among friends. Whether you're tracking personal expenses or managing group bills, Mone provides an intuitive and feature-rich platform to keep your finances organized.
 
-## Prerequisites
+### Why Mone?
 
-Sebelum memulai, pastikan Anda telah menginstal:
+In today's fast-paced world, keeping track of personal finances and splitting bills with friends can be challenging. Mone eliminates the hassle by providing:
 
-- [Flutter](https://flutter.dev/docs/get-started/install)
-- [Dart](https://dart.dev/get-dart)
+- **Smart Transaction Tracking**: Automatically categorize and analyze your spending patterns
+- **Effortless Bill Splitting**: Split bills with friends in seconds, not minutes
+- **Real-time Synchronization**: Keep everyone updated on payments and settlements
+- **Beautiful Analytics**: Understand your financial habits with interactive charts
+- **Social Integration**: Connect with friends and manage group expenses seamlessly
 
-## Instalasi
+## 📸 Screenshots
 
-1. Clone repositori ini ke mesin lokal Anda:
-   ```bash
-   git clone https://github.com/mone-app/mone.git
-   cd mone
-   ```
+## 👥 Our Team
 
-2. Jalankan perintah berikut untuk menginstal dependensi:
-   ```bash
-   flutter pub get
-   ```
+### Team Name: B02
 
-3. Untuk menjalankan aplikasi di emulator atau perangkat:
-   ```bash
-   flutter run
-   ```
+### 👨‍💻 Afiq Fawwaz Haidar
 
-## Pengembangan
+**Contributions:**
+  - Authentication System
+  - Transaction System 
+  - Friend System 
+  - Theme System
+  - Splash Screen & App Icon
 
-Jika Anda ingin berkontribusi pada proyek ini, silakan buat branch baru dan kirim pull request. Pastikan untuk mengikuti praktik terbaik pengembangan perangkat lunak.
+### 👨‍💻 Java Kanaya Prada
 
-## Dokumentasi
+**Contributions:**
+  - Split Bill System
+  - Transaction UI & Charts
+  - Notifications & Push Messaging
+  - Profile Management
+  - Firebase Crashlytics
 
-Untuk lebih memahami Flutter dan cara menggunakannya, Anda dapat merujuk ke dokumentasi resmi:
+### 👨‍💻 Adrian Aziz Santoso
 
-- [Dokumentasi Flutter](https://flutter.dev/docs)
-- [Tutorial Flutter](https://flutter.dev/docs/get-started/codelab)
+**Contributions:** 
+   - README Documentation
 
-## Kontribusi
+## ✨ Key Features
 
-Kontribusi sangat diterima! Silakan buka isu atau kirim pull request jika Anda memiliki fitur atau perbaikan yang ingin ditambahkan.
+### 💳 Transaction Management
 
-## Lisensi
+- **Personal Finance Tracking**: Record income and expense transactions with detailed categorization
+- **Smart Categories**: Organize transactions with predefined categories (Food, Transport, Shopping, etc.)
+- **Multiple Payment Methods**: Support for various payment methods (Cash, Credit/Debit Cards, Digital Wallets, etc.)
+- **Real-time Balance Updates**: Automatic balance calculation with every transaction
+- **Transaction History**: Comprehensive history with search and filter capabilities
 
-Proyek ini dilisensikan di bawah [Lisensi MIT](LICENSE).
+### 📊 Financial Analytics
 
-## Kontak
+- **Interactive Charts**: Visualize spending patterns with pie charts and line graphs
+- **Date Range Filtering**: Analyze finances over custom time periods
+- **Income vs Expense Tracking**: Monitor financial health with clear visualizations
+- **Daily Timeline**: Track daily transaction patterns
 
-Jika Anda memiliki pertanyaan atau saran, silakan hubungi:
-- [Afiq Fawwaz Haidar](mailto:your-email@example.com)
-- [Java Kanaya Prada](mailto:your-email@example.com)
+### 🧾 Smart Bill Splitting
+
+- **Group Bill Creation**: Create and manage bills with multiple participants
+- **Flexible Split Options**:
+  - Even split among all participants
+  - Custom amounts for each person
+- **Real-time Settlement Tracking**: Monitor who has paid and who owes money
+- **Automatic Transaction Creation**: Seamlessly integrates with personal transaction history
+- **Settlement Notifications**: Get notified when bills are settled
+
+### 👥 Social Features
+
+- **Friend Management**: Add and manage friends for easy bill splitting
+- **User Search**: Find friends by username or display name
+- **Profile Management**: Customizable user profiles with avatars
+- **Push Notifications**: Stay updated on bill activities and settlements
+
+---
+
+**Made with ❤️ using Flutter**
+
+*Mone - Your personal finance companion*
