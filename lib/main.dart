@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mone/core/services/navigation/navigation_service.dart';
@@ -19,7 +21,13 @@ late NotificationSettingsService notificationSettingsService;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize Crashlytics
+  await _initializeCrashlytics();
+
+  // Initialize FCM service
   await NotificationService.initializeLocalNotifications(debug: true);
   await NotificationService.initializeRemoteNotifications(debug: true);
 
@@ -94,4 +102,23 @@ class _AppState extends ConsumerState<App> {
       },
     );
   }
+}
+
+Future<void> _initializeCrashlytics() async {
+  // Pass all uncaught "fatal errors" from the framework to Crashlytics.
+  FlutterError.onError = (errorDetails) {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+  };
+
+  // Pass all uncaught asynchronous errors to Crashlytics.
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true; // Prevents the default error handling.
+  };
+
+  // Enable Crashlytics collection.
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+
+  // Log that Crashlytics has been initialized
+  FirebaseCrashlytics.instance.log('Crashlytics initialized successfully');
 }
