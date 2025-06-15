@@ -3,8 +3,8 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:mone/core/services/navigation/navigation_service.dart';
-import 'package:mone/core/services/notification/notification_handler.dart';
+import 'package:mone/core/navigation/navigation_service.dart';
+import 'package:mone/core/notification/notification_handler.dart';
 import 'package:mone/data/enums/route_enum.dart';
 
 @pragma('vm:entry-point')
@@ -144,13 +144,29 @@ class NotificationService {
     if (silentData.data != null) {
       final data = silentData.data!;
 
-      // Connection request notification
-      if (data['type'] == 'added_friend' &&
-          data.containsKey('connectionId') &&
-          data.containsKey('userId')) {
+      // friend notification
+      if (data['type'] == 'added_friend' && data.containsKey('userId')) {
         await NotificationTypeHandler.addedFriend(
           userId: data['userId'],
-          connectionId: data['connectionId'],
+          username: data['username'],
+          title: data['title'],
+          body: data['body'],
+        );
+      }
+
+      // friend notification
+      if (data['type'] == 'bill_created' && data.containsKey('userId')) {
+        await NotificationTypeHandler.newBill(
+          userId: data['userId'],
+          username: data['username'],
+          title: data['title'],
+          body: data['body'],
+        );
+      }
+
+      if (data['type'] == 'bill_settled' && data.containsKey('userId')) {
+        await NotificationTypeHandler.settledBill(
+          userId: data['userId'],
           username: data['username'],
           title: data['title'],
           body: data['body'],

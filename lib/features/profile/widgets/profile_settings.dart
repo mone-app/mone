@@ -2,7 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mone/core/themes/app_color.dart';
+import 'package:mone/core/theme/app_color.dart';
 import 'package:mone/features/profile/widgets/profile_section_header.dart';
 import 'package:mone/features/profile/widgets/theme_selection_dialog.dart';
 import 'package:mone/widgets/confirmation_dialog.dart';

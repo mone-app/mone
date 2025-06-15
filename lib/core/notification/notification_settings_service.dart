@@ -1,7 +1,7 @@
 // lib/core/services/notification_settings_service.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mone/core/services/notification/notification_service.dart';
+import 'package:mone/core/notification/notification_service.dart';
 
 class NotificationSettingsService extends ChangeNotifier {
   static const String _notificationEnabledKey = 'notifications_enabled';
