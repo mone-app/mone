@@ -1,6 +1,6 @@
 // lib/features/profile/widgets/profile_info.dart
 import 'package:flutter/material.dart';
-import 'package:mone/core/themes/app_color.dart';
+import 'package:mone/core/theme/app_color.dart';
 import 'package:mone/data/entities/user_entity.dart';
 import 'package:mone/features/profile/widgets/profile_section_header.dart';
 
@@ -9,7 +9,11 @@ class ProfileInfoItem {
   final String label;
   final String value;
 
-  ProfileInfoItem({required this.icon, required this.label, required this.value});
+  ProfileInfoItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 }
 
 class ProfileInfoCard extends StatelessWidget {
@@ -35,7 +39,8 @@ class ProfileInfoCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        children: items.map((item) => _buildInfoRow(item, colorScheme)).toList(),
+        children:
+            items.map((item) => _buildInfoRow(item, colorScheme)).toList(),
       ),
     );
   }
@@ -64,7 +69,10 @@ class ProfileInfoCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 item.value,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -96,7 +104,11 @@ class ProfileInfoSection extends StatelessWidget {
               label: "Email",
               value: user.email,
             ),
-            ProfileInfoItem(icon: Icons.badge_outlined, label: "User ID", value: user.id),
+            ProfileInfoItem(
+              icon: Icons.badge_outlined,
+              label: "User ID",
+              value: user.id,
+            ),
             ProfileInfoItem(
               icon: Icons.wallet,
               label: "Balance",

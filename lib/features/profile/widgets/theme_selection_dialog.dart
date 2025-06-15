@@ -1,7 +1,7 @@
 // lib/features/profile/widgets/theme_dialog.dart
 import 'package:flutter/material.dart';
-import 'package:mone/core/services/theme/theme_service.dart';
-import 'package:mone/core/themes/app_color.dart';
+import 'package:mone/core/theme/theme_service.dart';
+import 'package:mone/core/theme/app_color.dart';
 
 class ThemeSelectionDialog extends StatelessWidget {
   final ThemeService themeService;

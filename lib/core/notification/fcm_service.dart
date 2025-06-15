@@ -1,7 +1,7 @@
 // lib/data/services/notification/fcm_token_service.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mone/core/services/notification/notification_service.dart';
+import 'package:mone/core/notification/notification_service.dart';
 
 class FcmTokenService {
   static final FcmTokenService _instance = FcmTokenService._internal();

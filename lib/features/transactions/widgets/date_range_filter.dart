@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:mone/core/themes/app_color.dart';
+import 'package:mone/core/theme/app_color.dart';
 import 'package:mone/data/models/date_range_model.dart';
 import 'package:mone/data/providers/transaction_provider.dart';
 import 'package:mone/data/providers/user_provider.dart';

@@ -17,6 +17,28 @@ class NotificationApi {
     );
   }
 
+  Future<bool> sendBillNotification({
+    required String targetUserId,
+    required String fromUserId,
+  }) async {
+    return _sendNotification(
+      targetUserId: targetUserId,
+      type: 'bill_created',
+      fromUserId: fromUserId,
+    );
+  }
+
+  Future<bool> settleBillNotification({
+    required String targetUserId,
+    required String fromUserId,
+  }) async {
+    return _sendNotification(
+      targetUserId: targetUserId,
+      type: 'bill_settled',
+      fromUserId: fromUserId,
+    );
+  }
+
   Future<bool> _sendNotification({
     required String targetUserId,
     required String type,
@@ -29,7 +51,6 @@ class NotificationApi {
         body: jsonEncode({
           'targetUserId': targetUserId,
           'type': type,
-          'connectionId': 'connectionId',
           'fromUserId': fromUserId,
         }),
       );

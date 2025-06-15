@@ -1,5 +1,6 @@
 // lib/data/controllers/bill_controller.dart (Complete Implementation)
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mone/data/apis/push_notification_api.dart';
 import 'package:mone/data/controllers/transaction_controller.dart';
 import 'package:mone/data/entities/bill_entity.dart';
 import 'package:mone/data/entities/transaction_entity.dart';
@@ -17,12 +18,14 @@ class BillController extends StateNotifier<List<BillEntity>> {
   final BillRepository _billRepository;
   final TransactionRepository _transactionRepository;
   final TransactionController _transactionController;
+  final NotificationApi _notificationApi;
   final Ref _ref;
 
   BillController(
     this._billRepository,
     this._transactionRepository,
     this._transactionController,
+    this._notificationApi,
     this._ref,
   ) : super([]);
 
@@ -66,6 +69,13 @@ class BillController extends StateNotifier<List<BillEntity>> {
       // Create bill for all participants
       await _billRepository.createBillForParticipants(bill, participantIds);
 
+      await Future.wait(participantIds.map((userId) {
+        return _notificationApi.sendBillNotification(
+          targetUserId: userId,
+          fromUserId: bill.payerId,
+        );
+      }));
+
       // Create transactions for the payer
       await _createPayerTransactions(
         payerId: payerId,
@@ -94,7 +104,9 @@ class BillController extends StateNotifier<List<BillEntity>> {
     const uuid = Uuid();
 
     // Find payer's split amount
-    final payerParticipant = participants.firstWhere((p) => p.userId == payerId);
+    final payerParticipant = participants.firstWhere(
+      (p) => p.userId == payerId,
+    );
     final payerSplitAmount = payerParticipant.splitAmount;
 
     // Calculate others' total amount
@@ -163,8 +175,12 @@ class BillController extends StateNotifier<List<BillEntity>> {
       if (participant.isSettled) return; // Already settled
 
       // Update participant as settled
-      final updatedParticipants = List<ParticipantModel>.from(bill.participants);
-      updatedParticipants[participantIndex] = participant.copyWith(isSettled: true);
+      final updatedParticipants = List<ParticipantModel>.from(
+        bill.participants,
+      );
+      updatedParticipants[participantIndex] = participant.copyWith(
+        isSettled: true,
+      );
 
       // Check if all participants are now settled
       final allSettled = updatedParticipants.every((p) => p.isSettled);
@@ -179,7 +195,10 @@ class BillController extends StateNotifier<List<BillEntity>> {
       final participantIds = bill.participants.map((p) => p.userId).toList();
 
       // Update bill for all participants
-      await _billRepository.updateBillForAllParticipants(updatedBill, participantIds);
+      await _billRepository.updateBillForAllParticipants(
+        updatedBill,
+        participantIds,
+      );
 
       // Create transactions for settlement
       await _createSettlementTransactions(
@@ -187,6 +206,11 @@ class BillController extends StateNotifier<List<BillEntity>> {
         participant: participant,
         settlerUserId: participantUserId,
         payerId: bill.payerId,
+      );
+
+      await _notificationApi.settleBillNotification(
+        targetUserId: bill.payerId,
+        fromUserId: currentUserId,
       );
 
       // Update local state
@@ -291,10 +315,14 @@ class BillController extends StateNotifier<List<BillEntity>> {
   }
 
   // Delete payer's bill-related transactions
-  Future<void> _deletePayerBillTransactions(String billId, String payerId) async {
+  Future<void> _deletePayerBillTransactions(
+    String billId,
+    String payerId,
+  ) async {
     try {
       // Get all transactions for the payer
-      final allTransactions = await _transactionRepository.fetchUserTransactions(payerId);
+      final allTransactions = await _transactionRepository
+          .fetchUserTransactions(payerId);
 
       // Find transactions related to this bill
       final relatedTransactions =
@@ -315,7 +343,10 @@ class BillController extends StateNotifier<List<BillEntity>> {
   }
 
   // Helper method to calculate split amounts evenly
-  static List<double> calculateEvenSplit(double totalAmount, int participantCount) {
+  static List<double> calculateEvenSplit(
+    double totalAmount,
+    int participantCount,
+  ) {
     if (participantCount <= 0) return [];
 
     final baseAmount = totalAmount / participantCount;
@@ -343,7 +374,8 @@ class BillController extends StateNotifier<List<BillEntity>> {
     return state
         .where(
           (bill) =>
-              bill.payerId != userId && bill.participants.any((p) => p.userId == userId),
+              bill.payerId != userId &&
+              bill.participants.any((p) => p.userId == userId),
         )
         .toList();
   }
@@ -359,7 +391,8 @@ class BillController extends StateNotifier<List<BillEntity>> {
       }
 
       // If user is participant, show bills where they haven't settled
-      final participant = bill.participants.where((p) => p.userId == userId).firstOrNull;
+      final participant =
+          bill.participants.where((p) => p.userId == userId).firstOrNull;
       return participant != null && !participant.isSettled;
     }).toList();
   }
