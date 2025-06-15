@@ -136,7 +136,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                               ],
                             )
                             : Text(
-                              'Mark as Settled (\$${currentUserParticipant.splitAmount.toStringAsFixed(2)})',
+                              'Mark as Settled ${currentUserParticipant.formattedSplitAmount}',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

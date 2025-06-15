@@ -21,7 +21,7 @@ class BillActions {
           (context) => AlertDialog(
             title: const Text('Settle Bill'),
             content: Text(
-              'Are you sure you want to mark your share (\$${bill.getParticipant(currentUser.id)?.splitAmount.toStringAsFixed(2)}) as settled?\n\nThis will create an expense transaction in your account.',
+              'Are you sure you want to mark your share (${bill.getParticipant(currentUser.id)?.formattedSplitAmount}) as settled?\n\nThis will create an expense transaction in your account.',
             ),
             actions: [
               TextButton(
