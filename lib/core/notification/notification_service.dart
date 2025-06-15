@@ -165,7 +165,7 @@ class NotificationService {
       }
 
       if (data['type'] == 'bill_settled' && data.containsKey('userId')) {
-        await NotificationTypeHandler.newBill(
+        await NotificationTypeHandler.settledBill(
           userId: data['userId'],
           username: data['username'],
           title: data['title'],
