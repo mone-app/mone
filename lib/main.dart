@@ -1,13 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mone/core/navigation/navigation_service.dart';
 import 'package:mone/core/notification/fcm_service.dart';
 import 'package:mone/core/notification/notification_service.dart';
 import 'package:mone/core/notification/notification_settings_service.dart';
+import 'package:mone/core/services/crashlytics_service.dart';
 import 'package:mone/core/theme/theme_service.dart';
 import 'package:mone/core/theme/app_theme.dart';
 import 'package:mone/data/enums/route_enum.dart';
@@ -25,7 +24,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Initialize Crashlytics
-  await _initializeCrashlytics();
+  await CrashlyticsService.instance.initialize();
 
   // Initialize FCM service
   await NotificationService.initializeLocalNotifications(debug: true);
@@ -82,9 +81,7 @@ class _AppState extends ConsumerState<App> {
           stream: ref.read(authRepositoryProvider).auth.authStateChanges(),
           builder: (context, authSnapshot) {
             if (authSnapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
+              return const Scaffold(body: Center(child: CircularProgressIndicator()));
             }
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -102,23 +99,4 @@ class _AppState extends ConsumerState<App> {
       },
     );
   }
-}
-
-Future<void> _initializeCrashlytics() async {
-  // Pass all uncaught "fatal errors" from the framework to Crashlytics.
-  FlutterError.onError = (errorDetails) {
-    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-  };
-
-  // Pass all uncaught asynchronous errors to Crashlytics.
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true; // Prevents the default error handling.
-  };
-
-  // Enable Crashlytics collection.
-  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-
-  // Log that Crashlytics has been initialized
-  FirebaseCrashlytics.instance.log('Crashlytics initialized successfully');
 }
