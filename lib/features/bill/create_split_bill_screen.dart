@@ -10,12 +10,14 @@ import 'package:mone/features/bill/widgets/bill_form.dart';
 import 'package:mone/features/bill/widgets/participant_selection.dart';
 import 'package:mone/features/bill/widgets/split_method.dart';
 import 'package:mone/data/controllers/bill_controller.dart';
+import 'package:mone/widgets/custom_button.dart';
 
 class CreateSplitBillScreen extends ConsumerStatefulWidget {
   const CreateSplitBillScreen({super.key});
 
   @override
-  ConsumerState<CreateSplitBillScreen> createState() => _CreateSplitBillScreenState();
+  ConsumerState<CreateSplitBillScreen> createState() =>
+      _CreateSplitBillScreenState();
 }
 
 class _CreateSplitBillScreenState extends ConsumerState<CreateSplitBillScreen> {
@@ -42,23 +44,11 @@ class _CreateSplitBillScreenState extends ConsumerState<CreateSplitBillScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Split Bill'),
-        actions: [
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            )
-          else
-            TextButton(
-              onPressed: _canCreateBill() ? _createBill : null,
-              child: const Text('Create'),
-            ),
-        ],
+        title: const Text(
+          'Create Bill',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -113,6 +103,14 @@ class _CreateSplitBillScreenState extends ConsumerState<CreateSplitBillScreen> {
                 participantCount: _participants.length,
               ),
             ],
+            const SizedBox(height: 24),
+
+            CustomButton(
+              text: "Save Bill",
+              onPressed: _canCreateBill() ? _createBill : () {},
+              isLoading: _isLoading,
+              icon: Icons.save,
+            ),
           ],
         ),
       ),
@@ -124,7 +122,9 @@ class _CreateSplitBillScreenState extends ConsumerState<CreateSplitBillScreen> {
     setState(() {
       final index = _participants.indexWhere((p) => p.userId == userId);
       if (index != -1) {
-        _participants[index] = _participants[index].copyWith(splitAmount: amount);
+        _participants[index] = _participants[index].copyWith(
+          splitAmount: amount,
+        );
       } else {
         // Handle case where current user isn't in participants yet
         final currentUser = ref.read(userProvider);
@@ -181,7 +181,8 @@ class _CreateSplitBillScreenState extends ConsumerState<CreateSplitBillScreen> {
                 splitAmount: splitAmounts[index],
                 isSettled:
                     user.id ==
-                    currentUser.id, // Current user is already "settled" as payer
+                    currentUser
+                        .id, // Current user is already "settled" as payer
               );
             }).toList();
       });
@@ -270,7 +271,10 @@ class _CreateSplitBillScreenState extends ConsumerState<CreateSplitBillScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating bill: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error creating bill: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {

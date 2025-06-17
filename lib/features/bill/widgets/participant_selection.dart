@@ -1,12 +1,15 @@
-// lib/features/bill/widgets/participant_selection_widget.dart
+// lib/features/bill/widgets/participant_selection.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mone/core/theme/app_color.dart';
 import 'package:mone/data/entities/user_entity.dart';
 import 'package:mone/data/models/participant_model.dart';
 import 'package:mone/data/providers/user_provider.dart';
+import 'package:mone/widgets/custom_input_field.dart';
+import 'package:mone/widgets/profile_avatar.dart';
 
-class ParticipantSelection extends ConsumerWidget {
+class ParticipantSelection extends ConsumerStatefulWidget {
   final List<UserEntity> selectedFriends;
   final List<ParticipantModel> participants;
   final bool isEvenSplit;
@@ -23,100 +26,191 @@ class ParticipantSelection extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(userProvider);
-    final allUsersAsync = ref.watch(allUsersStreamProvider);
+  ConsumerState<ParticipantSelection> createState() =>
+      _ParticipantSelectionState();
+}
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Add Participants Section
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Participants',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            ElevatedButton.icon(
-              onPressed:
-                  () => _showAddParticipantsDialog(context, allUsersAsync, currentUser),
-              icon: const Icon(Icons.person_add),
-              label: const Text('Add Friends'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
+class _ParticipantSelectionState extends ConsumerState<ParticipantSelection> {
+  final Map<String, TextEditingController> _controllers = {};
 
-        // Current User (Payer)
-        _buildPayerCard(currentUser),
-
-        // Selected Friends
-        ...selectedFriends.map((friend) => _buildParticipantCard(friend)),
-      ],
-    );
+  @override
+  void dispose() {
+    for (var controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
-  Widget _buildPayerCard(UserEntity? currentUser) {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.blue[100],
-          child: Text(
-            currentUser?.name.substring(0, 1).toUpperCase() ?? 'U',
-            style: TextStyle(color: Colors.blue[800], fontWeight: FontWeight.bold),
+  TextEditingController _getController(String userId, double amount) {
+    if (!_controllers.containsKey(userId)) {
+      _controllers[userId] = TextEditingController(text: amount.toString());
+    }
+
+    // Update controller only if we're in even split mode (to show calculated amounts)
+    if (widget.isEvenSplit) {
+      final participant =
+          widget.participants.where((p) => p.userId == userId).firstOrNull;
+      if (participant != null) {
+        _controllers[userId]!.text = participant.splitAmount.toString();
+      }
+    }
+
+    return _controllers[userId]!;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentUser = ref.watch(userProvider);
+    final allUsersAsync = ref.watch(allUsersStreamProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.containerSurface(context),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            spreadRadius: 1,
           ),
-        ),
-        title: Text(currentUser?.name ?? 'You'),
-        subtitle: const Text('Bill Creator (You)'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (!isEvenSplit && participants.isNotEmpty)
-              SizedBox(
-                width: 80,
-                child: TextFormField(
-                  initialValue: participants.first.splitAmount.toString(),
-                  decoration: const InputDecoration(prefixText: '\$', isDense: true),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                  ],
-                  onChanged:
-                      (value) => onParticipantAmountChanged(currentUser?.id ?? '', value),
+            // Header Section
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.group,
+                    color: colorScheme.primary,
+                    size: 20,
+                  ),
                 ),
-              )
-            else
-              Text(
-                participants.isNotEmpty
-                    ? participants.first.formattedSplitAmount
-                    : 'Rp0,00',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              margin: const EdgeInsets.only(left: 8),
-              decoration: BoxDecoration(
-                color: Colors.blue[100],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'Payer',
-                style: TextStyle(
-                  color: Colors.blue[800],
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Participants',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Who should split this bill?',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                _buildAddButton(context, allUsersAsync, currentUser),
+              ],
             ),
+            const SizedBox(height: 20),
+
+            // Current User (Payer)
+            _buildPayerCard(currentUser, colorScheme),
+
+            // Selected Friends
+            if (widget.selectedFriends.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              ...widget.selectedFriends.map(
+                (friend) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildParticipantCard(friend, colorScheme),
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildParticipantCard(UserEntity friend) {
-    final participant = participants.firstWhere(
+  Widget _buildAddButton(
+    BuildContext context,
+    AsyncValue<List<UserEntity>> allUsersAsync,
+    UserEntity? currentUser,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.primary,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap:
+              () => _showAddParticipantsDialog(
+                context,
+                allUsersAsync,
+                currentUser,
+              ),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.person_add, color: colorScheme.onPrimary, size: 18),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPayerCard(UserEntity? currentUser, ColorScheme colorScheme) {
+    final participant =
+        widget.participants.isNotEmpty ? widget.participants.first : null;
+
+    return Row(
+      children: [
+        Expanded(
+          child: CustomInputField(
+            controller: _getController(
+              currentUser?.id ?? '',
+              participant?.splitAmount ?? 0.0,
+            ),
+            labelText: "@${currentUser?.username} (Payer)",
+            hintText: 'Enter amount',
+            prefixIcon: Icons.attach_money,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            isEnabled: !widget.isEvenSplit,
+            onChanged:
+                widget.isEvenSplit
+                    ? null
+                    : (value) => widget.onParticipantAmountChanged(
+                      currentUser?.id ?? '',
+                      value,
+                    ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildParticipantCard(UserEntity friend, ColorScheme colorScheme) {
+    final participant = widget.participants.firstWhere(
       (p) => p.userId == friend.id,
       orElse:
           () => ParticipantModel(
@@ -127,46 +221,60 @@ class ParticipantSelection extends ConsumerWidget {
           ),
     );
 
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(child: Text(friend.name.substring(0, 1).toUpperCase())),
-        title: Text(friend.name),
-        subtitle: Text('@${friend.username}'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!isEvenSplit)
-              SizedBox(
-                width: 80,
-                child: TextFormField(
-                  initialValue: participant.splitAmount.toString(),
-                  decoration: const InputDecoration(prefixText: '\$', isDense: true),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                  ],
-                  onChanged: (value) => onParticipantAmountChanged(friend.id, value),
-                ),
-              )
-            else
-              Text(
-                participant.formattedSplitAmount,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            IconButton(
-              onPressed: () => _removeParticipant(friend),
-              icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-            ),
-          ],
+    return Row(
+      children: [
+        Expanded(
+          flex: 7,
+          child: CustomInputField(
+            controller: _getController(friend.id, participant.splitAmount),
+            labelText: "@${friend.username}",
+            hintText: 'Enter amount',
+            prefixIcon: Icons.attach_money,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            isEnabled: !widget.isEvenSplit,
+            onChanged:
+                widget.isEvenSplit
+                    ? null
+                    : (value) =>
+                        widget.onParticipantAmountChanged(friend.id, value),
+          ),
         ),
-      ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 1,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _removeParticipant(friend),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Icon(
+                    Icons.close,
+                    color: Colors.red.shade600,
+                    size: 18,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   void _removeParticipant(UserEntity friend) {
-    final updatedFriends = List<UserEntity>.from(selectedFriends);
+    // Remove the controller when participant is removed
+    _controllers.remove(friend.id);
+
+    final updatedFriends = List<UserEntity>.from(widget.selectedFriends);
     updatedFriends.removeWhere((f) => f.id == friend.id);
-    onSelectedFriendsChanged(updatedFriends);
+    widget.onSelectedFriendsChanged(updatedFriends);
   }
 
   void _showAddParticipantsDialog(
@@ -185,12 +293,16 @@ class ParticipantSelection extends ConsumerWidget {
                   (user) =>
                       user.id != currentUser.id &&
                       currentUser.friend.contains(user.id) &&
-                      !selectedFriends.any((selected) => selected.id == user.id),
+                      !widget.selectedFriends.any(
+                        (selected) => selected.id == user.id,
+                      ),
                 )
                 .toList();
 
         // Create a local copy to manage checkbox states within the dialog
-        List<UserEntity> tempSelectedFriends = List.from(selectedFriends);
+        List<UserEntity> tempSelectedFriends = List.from(
+          widget.selectedFriends,
+        );
 
         showDialog(
           context: context,
@@ -198,17 +310,36 @@ class ParticipantSelection extends ConsumerWidget {
               (context) => StatefulBuilder(
                 builder:
                     (context, setDialogState) => AlertDialog(
-                      title: const Text('Add Friends'),
+                      backgroundColor: AppColors.containerSurface(context),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      title: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.person_add,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text('Add Friends'),
+                        ],
+                      ),
                       content: SizedBox(
                         width: double.maxFinite,
                         height: 300,
                         child:
                             friends.isEmpty
-                                ? const Center(
-                                  child: Text(
-                                    'No more friends available.\nAll your friends are already added or add more friends first.',
-                                  ),
-                                )
+                                ? _buildEmptyFriendsState(context)
                                 : ListView.builder(
                                   itemCount: friends.length,
                                   itemBuilder: (context, index) {
@@ -217,28 +348,72 @@ class ParticipantSelection extends ConsumerWidget {
                                       (f) => f.id == friend.id,
                                     );
 
-                                    return CheckboxListTile(
-                                      value: isSelected,
-                                      onChanged: (value) {
-                                        setDialogState(() {
-                                          if (value == true) {
-                                            if (!tempSelectedFriends.any(
-                                              (f) => f.id == friend.id,
-                                            )) {
-                                              tempSelectedFriends.add(friend);
+                                    return Container(
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            isSelected
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                    .withValues(alpha: 0.1)
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .surfaceContainerHighest
+                                                    .withValues(alpha: 0.3),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color:
+                                              isSelected
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withValues(alpha: 0.3)
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .outline
+                                                      .withValues(alpha: 0.2),
+                                        ),
+                                      ),
+                                      child: CheckboxListTile(
+                                        value: isSelected,
+                                        onChanged: (value) {
+                                          setDialogState(() {
+                                            if (value == true) {
+                                              if (!tempSelectedFriends.any(
+                                                (f) => f.id == friend.id,
+                                              )) {
+                                                tempSelectedFriends.add(friend);
+                                              }
+                                            } else {
+                                              tempSelectedFriends.removeWhere(
+                                                (f) => f.id == friend.id,
+                                              );
                                             }
-                                          } else {
-                                            tempSelectedFriends.removeWhere(
-                                              (f) => f.id == friend.id,
-                                            );
-                                          }
-                                        });
-                                      },
-                                      title: Text(friend.name),
-                                      subtitle: Text('@${friend.username}'),
-                                      secondary: CircleAvatar(
-                                        child: Text(
-                                          friend.name.substring(0, 1).toUpperCase(),
+                                          });
+                                        },
+                                        title: Text(
+                                          friend.name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        subtitle: Text(
+                                          '@${friend.username}',
+                                          style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        secondary: ProfileAvatar(
+                                          avatarPath: friend.profilePicture,
+                                          displayName: friend.name,
+                                          size: 32,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                       ),
                                     );
@@ -248,13 +423,32 @@ class ParticipantSelection extends ConsumerWidget {
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancel'),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            onSelectedFriendsChanged(tempSelectedFriends);
+                            widget.onSelectedFriendsChanged(
+                              tempSelectedFriends,
+                            );
                             Navigator.pop(context);
                           },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                           child: const Text('Add Selected'),
                         ),
                       ],
@@ -266,8 +460,9 @@ class ParticipantSelection extends ConsumerWidget {
           () => showDialog(
             context: context,
             builder:
-                (context) => const AlertDialog(
-                  content: Row(
+                (context) => AlertDialog(
+                  backgroundColor: AppColors.containerSurface(context),
+                  content: const Row(
                     children: [
                       CircularProgressIndicator(),
                       SizedBox(width: 16),
@@ -277,9 +472,48 @@ class ParticipantSelection extends ConsumerWidget {
                 ),
           ),
       error:
-          (error, _) => ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Error loading friends: $error'))),
+          (error, _) => ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error loading friends: $error')),
+          ),
+    );
+  }
+
+  Widget _buildEmptyFriendsState(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.group_off,
+              size: 32,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No friends available',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'All your friends are already added\nor add more friends first.',
+            style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

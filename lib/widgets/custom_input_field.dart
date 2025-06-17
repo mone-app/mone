@@ -13,6 +13,7 @@ class CustomInputField extends StatelessWidget {
   final TextCapitalization textCapitalization;
   final Function(String)? onChanged;
   final bool isBordered;
+  final bool isEnabled;
 
   const CustomInputField({
     super.key,
@@ -27,6 +28,7 @@ class CustomInputField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
     this.onChanged,
     this.isBordered = true,
+    this.isEnabled = true,
   });
 
   @override
@@ -36,10 +38,33 @@ class CustomInputField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       textCapitalization: textCapitalization,
+      enabled: isEnabled,
+      style: TextStyle(
+        color:
+            isEnabled
+                ? null
+                : Theme.of(
+                  context,
+                ).colorScheme.onSurface, // Override disabled text color
+      ),
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
-        prefixIcon: Icon(prefixIcon),
+        labelStyle:
+            isEnabled
+                ? null
+                : TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                ), // Override disabled label color
+        prefixIcon: Icon(
+          prefixIcon,
+          color:
+              isEnabled
+                  ? null
+                  : Theme.of(context)
+                      .colorScheme
+                      .onSurfaceVariant, // Override disabled icon color
+        ),
         suffixIcon: suffixIcon,
         border:
             isBordered
@@ -54,6 +79,18 @@ class CustomInputField extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                 ),
         enabledBorder:
+            isBordered
+                ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                )
+                : OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+        disabledBorder:
             isBordered
                 ? OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),

@@ -319,24 +319,6 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Header with icon
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isEditing ? Icons.edit : Icons.add_circle_outline,
-                        size: 32,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
                   // Transaction Type Selection
                   Container(
                     padding: const EdgeInsets.all(4),

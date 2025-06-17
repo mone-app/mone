@@ -44,7 +44,10 @@ class _BillScreenState extends ConsumerState<BillScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Split Bills'),
+        title: const Text(
+          'Split Bills',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -81,21 +84,23 @@ class _BillScreenState extends ConsumerState<BillScreen>
                   Text('Error loading bills: $error'),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => ref.refresh(billStreamProvider(currentUser.id)),
+                    onPressed:
+                        () => ref.refresh(billStreamProvider(currentUser.id)),
                     child: const Text('Retry'),
                   ),
                 ],
               ),
             ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed:
             () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const CreateSplitBillScreen()),
+              MaterialPageRoute(
+                builder: (context) => const CreateSplitBillScreen(),
+              ),
             ),
-        icon: const Icon(Icons.add),
-        label: const Text('Split Bill'),
+        child: const Icon(Icons.post_add),
       ),
     );
   }
@@ -125,7 +130,9 @@ class _BillScreenState extends ConsumerState<BillScreen>
         bills.where((bill) {
           if (bill.payerId == currentUserId) return false;
           final participant =
-              bill.participants.where((p) => p.userId == currentUserId).firstOrNull;
+              bill.participants
+                  .where((p) => p.userId == currentUserId)
+                  .firstOrNull;
           return participant != null;
         }).toList();
 
@@ -225,7 +232,9 @@ class _BillScreenState extends ConsumerState<BillScreen>
         onTap:
             () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => BillDetailScreen(bill: bill)),
+              MaterialPageRoute(
+                builder: (context) => BillDetailScreen(bill: bill),
+              ),
             ),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -251,14 +260,20 @@ class _BillScreenState extends ConsumerState<BillScreen>
                         ),
                         Text(
                           '${_formatDate(bill.date)} • ${bill.category.name}',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   // Status Badge
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: isSettled ? Colors.green[100] : Colors.orange[100],
                       borderRadius: BorderRadius.circular(12),
@@ -266,7 +281,8 @@ class _BillScreenState extends ConsumerState<BillScreen>
                     child: Text(
                       isSettled ? 'Settled' : 'Active',
                       style: TextStyle(
-                        color: isSettled ? Colors.green[800] : Colors.orange[800],
+                        color:
+                            isSettled ? Colors.green[800] : Colors.orange[800],
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
@@ -299,10 +315,15 @@ class _BillScreenState extends ConsumerState<BillScreen>
                       children: [
                         Text(
                           'You owe',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
                         ),
                         Text(
-                          CurrencyFormatter.formatToRupiahWithDecimal(owedAmount),
+                          CurrencyFormatter.formatToRupiahWithDecimal(
+                            owedAmount,
+                          ),
                           style: const TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
@@ -317,10 +338,15 @@ class _BillScreenState extends ConsumerState<BillScreen>
                       children: [
                         Text(
                           'Owed to you',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
                         ),
                         Text(
-                          CurrencyFormatter.formatToRupiahWithDecimal(owedToMeAmount),
+                          CurrencyFormatter.formatToRupiahWithDecimal(
+                            owedToMeAmount,
+                          ),
                           style: const TextStyle(
                             color: Colors.green,
                             fontWeight: FontWeight.bold,
@@ -335,7 +361,10 @@ class _BillScreenState extends ConsumerState<BillScreen>
                       children: [
                         Text(
                           isCreator ? 'You paid' : 'Your share',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
                         ),
                         Text(
                           (participant?.formattedSplitAmount ?? 'Rp0,00'),
@@ -358,7 +387,9 @@ class _BillScreenState extends ConsumerState<BillScreen>
                       child: LinearProgressIndicator(
                         value: bill.totalSettledAmount / bill.amount,
                         backgroundColor: Colors.grey[300],
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green[400]!),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.green[400]!,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),

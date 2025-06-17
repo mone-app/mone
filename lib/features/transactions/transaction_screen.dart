@@ -58,12 +58,6 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
           'Transactions',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _navigateToAddTransaction,
-          ),
-        ],
 
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
@@ -80,6 +74,10 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
           // Placeholder for transaction list (to be added later)
           SliverToBoxAdapter(child: TransactionListSection(userId: user.id)),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _navigateToAddTransaction,
+        child: const Icon(Icons.add_card),
       ),
     );
   }
