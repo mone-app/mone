@@ -1,4 +1,4 @@
-// lib/features/bill/bill_detail_screen.dart (Updated with modern UI)
+// lib/features/bill/bill_detail_screen.dart (Updated with real-time updates)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +6,7 @@ import 'package:mone/core/theme/app_color.dart';
 import 'package:mone/data/entities/bill_entity.dart';
 import 'package:mone/data/enums/bill_status_enum.dart';
 import 'package:mone/data/providers/user_provider.dart';
+import 'package:mone/data/providers/bill_provider.dart';
 import 'package:mone/features/bill/widgets/bill_actions.dart';
 import 'package:mone/widgets/profile_avatar.dart';
 
@@ -24,22 +25,52 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final currentUser = ref.watch(userProvider);
-    final colorScheme = Theme.of(context).colorScheme;
 
     if (currentUser == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final isCreator = widget.bill.payerId == currentUser.id;
+    // Watch the bill stream for real-time updates
+    final billStreamAsync = ref.watch(billStreamProvider(currentUser.id));
+
+    return billStreamAsync.when(
+      data: (bills) {
+        // Find the current bill from the stream
+        final currentBill = bills.firstWhere(
+          (b) => b.id == widget.bill.id,
+          orElse: () => widget.bill, // Fallback to original bill if not found
+        );
+
+        return _buildBillDetail(context, currentBill, currentUser.id);
+      },
+      loading: () => _buildBillDetail(context, widget.bill, currentUser.id),
+      error: (error, stack) {
+        // On error, show the original bill but with an error indicator
+        return _buildBillDetail(
+          context,
+          widget.bill,
+          currentUser.id,
+          error: error.toString(),
+        );
+      },
+    );
+  }
+
+  Widget _buildBillDetail(
+    BuildContext context,
+    BillEntity bill,
+    String currentUserId, {
+    String? error,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isCreator = bill.payerId == currentUserId;
     final currentUserParticipant =
-        widget.bill.participants
-            .where((p) => p.userId == currentUser.id)
-            .firstOrNull;
+        bill.participants.where((p) => p.userId == currentUserId).firstOrNull;
     final canSettle =
         currentUserParticipant != null &&
         !currentUserParticipant.isSettled &&
         !isCreator &&
-        widget.bill.status == BillStatusEnum.active;
+        bill.status == BillStatusEnum.active;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -56,10 +87,10 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
         ),
         centerTitle: true,
         actions: [
-          if (isCreator && widget.bill.status == BillStatusEnum.active)
+          if (isCreator && bill.status == BillStatusEnum.active)
             IconButton(
               icon: const Icon(Icons.more_vert),
-              onPressed: () => _showOptionsMenu(context),
+              onPressed: () => _showOptionsMenu(context, bill),
             ),
         ],
       ),
@@ -68,29 +99,61 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Error indicator (if any)
+            if (error != null) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.warning_amber,
+                      color: Colors.red.shade600,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Connection issue: Showing cached data',
+                        style: TextStyle(
+                          color: Colors.red.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             // Bill Overview Card
-            _buildBillOverviewCard(context),
+            _buildBillOverviewCard(context, bill),
             const SizedBox(height: 16),
 
             // Settlement Progress (for active bills)
-            if (!widget.bill.isSettled) ...[
-              _buildSettlementProgressCard(context),
+            if (!bill.isSettled) ...[
+              _buildSettlementProgressCard(context, bill),
               const SizedBox(height: 16),
             ],
 
             // Participants List
-            _buildParticipantsCard(context, currentUser.id),
+            _buildParticipantsCard(context, bill, currentUserId),
           ],
         ),
       ),
       bottomNavigationBar:
           canSettle
-              ? _buildSettleButton(context, currentUserParticipant)
+              ? _buildSettleButton(context, bill, currentUserParticipant)
               : null,
     );
   }
 
-  Widget _buildBillOverviewCard(BuildContext context) {
+  Widget _buildBillOverviewCard(BuildContext context, BillEntity bill) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -119,7 +182,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  widget.bill.category.icon,
+                  bill.category.icon,
                   color: colorScheme.onPrimary,
                   size: 24,
                 ),
@@ -130,7 +193,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.bill.title,
+                      bill.title,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -138,7 +201,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      widget.bill.category.name,
+                      bill.category.name,
                       style: TextStyle(
                         color: colorScheme.onSurfaceVariant,
                         fontSize: 14,
@@ -154,22 +217,22 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                 ),
                 decoration: BoxDecoration(
                   color:
-                      widget.bill.isSettled
+                      bill.isSettled
                           ? Colors.green.withValues(alpha: 0.1)
                           : Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color:
-                        widget.bill.isSettled
+                        bill.isSettled
                             ? Colors.green.withValues(alpha: 0.2)
                             : Colors.orange.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Text(
-                  widget.bill.isSettled ? 'Settled' : 'Active',
+                  bill.isSettled ? 'Settled' : 'Active',
                   style: TextStyle(
                     color:
-                        widget.bill.isSettled
+                        bill.isSettled
                             ? Colors.green.shade700
                             : Colors.orange.shade700,
                     fontWeight: FontWeight.w600,
@@ -181,8 +244,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
           ),
 
           // Description
-          if (widget.bill.description != null &&
-              widget.bill.description!.isNotEmpty) ...[
+          if (bill.description != null && bill.description!.isNotEmpty) ...[
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
@@ -193,7 +255,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                widget.bill.description!,
+                bill.description!,
                 style: TextStyle(
                   color: colorScheme.onSurfaceVariant,
                   fontSize: 14,
@@ -211,7 +273,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                 child: _buildInfoColumn(
                   context,
                   'Total Amount',
-                  widget.bill.formattedAmount,
+                  bill.formattedAmount,
                   Icons.attach_money,
                 ),
               ),
@@ -219,7 +281,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                 child: _buildInfoColumn(
                   context,
                   'Date',
-                  _formatDate(widget.bill.date),
+                  _formatDate(bill.date),
                   Icons.calendar_today,
                 ),
               ),
@@ -227,7 +289,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                 child: _buildInfoColumn(
                   context,
                   'Participants',
-                  '${widget.bill.participantCount}',
+                  '${bill.participantCount}',
                   Icons.group,
                 ),
               ),
@@ -265,9 +327,9 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
     );
   }
 
-  Widget _buildSettlementProgressCard(BuildContext context) {
+  Widget _buildSettlementProgressCard(BuildContext context, BillEntity bill) {
     final colorScheme = Theme.of(context).colorScheme;
-    final progress = widget.bill.totalSettledAmount / widget.bill.amount;
+    final progress = bill.totalSettledAmount / bill.amount;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -341,7 +403,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    'Settled: ${widget.bill.formattedSettledAmount}',
+                    'Settled: ${bill.formattedSettledAmount}',
                     style: TextStyle(
                       color: Colors.green.shade700,
                       fontSize: 12,
@@ -355,7 +417,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                   Icon(Icons.schedule, color: Colors.orange.shade600, size: 16),
                   const SizedBox(width: 4),
                   Text(
-                    'Remaining: ${widget.bill.formattedUnsettledAmount}',
+                    'Remaining: ${bill.formattedUnsettledAmount}',
                     style: TextStyle(
                       color: Colors.orange.shade700,
                       fontSize: 12,
@@ -371,7 +433,11 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
     );
   }
 
-  Widget _buildParticipantsCard(BuildContext context, String currentUserId) {
+  Widget _buildParticipantsCard(
+    BuildContext context,
+    BillEntity bill,
+    String currentUserId,
+  ) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -409,8 +475,8 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
           ),
           const SizedBox(height: 16),
 
-          ...widget.bill.participants.map((participant) {
-            final isPayer = participant.userId == widget.bill.payerId;
+          ...bill.participants.map((participant) {
+            final isPayer = participant.userId == bill.payerId;
             final isCurrentUser = participant.userId == currentUserId;
 
             return Container(
@@ -525,6 +591,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
 
   Widget _buildSettleButton(
     BuildContext context,
+    BillEntity bill,
     dynamic currentUserParticipant,
   ) {
     return SafeArea(
@@ -549,7 +616,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
           width: double.infinity,
           height: 56,
           child: ElevatedButton(
-            onPressed: _isSettling ? null : _settleBill,
+            onPressed: _isSettling ? null : () => _settleBill(bill),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green.shade600,
               foregroundColor: Colors.white,
@@ -597,7 +664,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
     );
   }
 
-  void _showOptionsMenu(BuildContext context) {
+  void _showOptionsMenu(BuildContext context, BillEntity bill) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -631,7 +698,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                     BillActions.deleteBill(
                       context: context,
                       ref: ref,
-                      bill: widget.bill,
+                      bill: bill,
                     );
                   },
                 ),
@@ -642,17 +709,13 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
     );
   }
 
-  Future<void> _settleBill() async {
+  Future<void> _settleBill(BillEntity bill) async {
     setState(() {
       _isSettling = true;
     });
 
     try {
-      await BillActions.settleBill(
-        context: context,
-        ref: ref,
-        bill: widget.bill,
-      );
+      await BillActions.settleBill(context: context, ref: ref, bill: bill);
     } finally {
       if (mounted) {
         setState(() {
