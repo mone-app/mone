@@ -1,7 +1,9 @@
-// lib/features/bill/widgets/bill_form_widget.dart
+// lib/features/bill/widgets/bill_form.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mone/core/theme/app_color.dart';
 import 'package:mone/data/models/category_model.dart';
+import 'package:mone/widgets/custom_input_field.dart';
 
 class BillForm extends StatelessWidget {
   final GlobalKey<FormState> formKey;
@@ -31,13 +33,11 @@ class BillForm extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Bill Title
-          TextFormField(
+          CustomInputField(
             controller: titleController,
-            decoration: const InputDecoration(
-              labelText: 'Bill Title *',
-              hintText: 'e.g., Dinner at Restaurant',
-              border: OutlineInputBorder(),
-            ),
+            labelText: 'Bill Title',
+            hintText: 'e.g., Dinner at Restaurant',
+            prefixIcon: Icons.receipt_long,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter a bill title';
@@ -48,30 +48,22 @@ class BillForm extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Bill Description
-          TextFormField(
+          CustomInputField(
             controller: descriptionController,
-            decoration: const InputDecoration(
-              labelText: 'Description (Optional)',
-              hintText: 'Add more details about the bill',
-              border: OutlineInputBorder(),
-            ),
-            maxLines: 2,
+            labelText: 'Description',
+            hintText: 'Add more details about the bill...',
+            prefixIcon: Icons.note_outlined,
+            // No validator for optional field
           ),
           const SizedBox(height: 16),
 
           // Total Amount
-          TextFormField(
+          CustomInputField(
             controller: amountController,
-            decoration: const InputDecoration(
-              labelText: 'Total Amount *',
-              hintText: '0.00',
-              border: OutlineInputBorder(),
-              prefixText: '\$ ',
-            ),
+            labelText: 'Total Amount',
+            hintText: 'Enter total amount',
+            prefixIcon: Icons.attach_money,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-            ],
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter the total amount';
@@ -87,34 +79,75 @@ class BillForm extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Category Selection
-          DropdownButtonFormField<CategoryModel>(
-            value: selectedCategory,
-            decoration: const InputDecoration(
-              labelText: 'Category *',
-              border: OutlineInputBorder(),
-            ),
-            items:
-                CategoryModel.getExpenseCategories().map((category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Row(
-                      children: [
-                        Icon(category.icon, size: 20),
-                        const SizedBox(width: 8),
-                        Text(category.name),
-                      ],
-                    ),
-                  );
-                }).toList(),
-            onChanged: onCategoryChanged,
-            validator: (value) {
-              if (value == null) {
-                return 'Please select a category';
-              }
-              return null;
-            },
-          ),
+          _buildCategoryDropdown(context),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryDropdown(BuildContext context) {
+    final categories = CategoryModel.getExpenseCategories();
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: AppColors.containerSurface(context),
+      ),
+      child: DropdownButtonFormField<CategoryModel>(
+        value: categories.contains(selectedCategory) ? selectedCategory : null,
+        decoration: InputDecoration(
+          labelText: 'Category',
+          prefixIcon: const Icon(Icons.category),
+          filled: true,
+          fillColor: Colors.transparent,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+              width: 2.0,
+            ),
+          ),
+        ),
+        items:
+            categories.map((category) {
+              return DropdownMenuItem(
+                value: category,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(category.icon, size: 20),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        category.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+        onChanged: onCategoryChanged,
+        validator: (value) {
+          if (value == null) {
+            return 'Please select a category';
+          }
+          return null;
+        },
+        icon: const Icon(Icons.keyboard_arrow_down),
       ),
     );
   }
