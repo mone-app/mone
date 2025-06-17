@@ -194,6 +194,7 @@ class _ParticipantSelectionState extends ConsumerState<ParticipantSelection> {
             labelText: "@${currentUser?.username} (Payer)",
             hintText: 'Enter amount',
             prefixIcon: Icons.attach_money,
+            prefixText: "Rp ",
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             isEnabled: !widget.isEvenSplit,
             onChanged:
@@ -230,6 +231,7 @@ class _ParticipantSelectionState extends ConsumerState<ParticipantSelection> {
             labelText: "@${friend.username}",
             hintText: 'Enter amount',
             prefixIcon: Icons.attach_money,
+            prefixText: "Rp ",
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             isEnabled: !widget.isEvenSplit,
             onChanged:

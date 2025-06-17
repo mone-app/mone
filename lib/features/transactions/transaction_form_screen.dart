@@ -363,6 +363,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                     labelText: 'Amount',
                     hintText: 'Enter amount',
                     prefixIcon: Icons.attach_money,
+                    prefixText: "Rp ",
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),

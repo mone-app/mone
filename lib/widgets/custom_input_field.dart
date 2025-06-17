@@ -14,6 +14,7 @@ class CustomInputField extends StatelessWidget {
   final Function(String)? onChanged;
   final bool isBordered;
   final bool isEnabled;
+  final String? prefixText;
 
   const CustomInputField({
     super.key,
@@ -29,6 +30,7 @@ class CustomInputField extends StatelessWidget {
     this.onChanged,
     this.isBordered = true,
     this.isEnabled = true,
+    this.prefixText,
   });
 
   @override
@@ -56,6 +58,15 @@ class CustomInputField extends StatelessWidget {
                 : TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                 ), // Override disabled label color
+        prefixText: prefixText,
+        prefixStyle: TextStyle(
+          color:
+              isEnabled
+                  ? null
+                  : Theme.of(context)
+                      .colorScheme
+                      .onSurfaceVariant, // Override disabled prefix text color
+        ),
         prefixIcon: Icon(
           prefixIcon,
           color:

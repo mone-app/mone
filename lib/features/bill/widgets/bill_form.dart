@@ -63,6 +63,7 @@ class BillForm extends StatelessWidget {
             labelText: 'Total Amount',
             hintText: 'Enter total amount',
             prefixIcon: Icons.attach_money,
+            prefixText: "Rp ",
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
